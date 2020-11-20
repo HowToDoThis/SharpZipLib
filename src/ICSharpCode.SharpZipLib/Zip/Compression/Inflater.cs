@@ -173,7 +173,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 		{
 			this.noHeader = noHeader;
 			if (!noHeader)
-				this.adler = new Adler32();
+				adler = new Adler32();
 			input = new StreamManipulator();
 			outputWindow = new OutputWindow();
 			mode = noHeader ? DECODE_BLOCKS : DECODE_HEADER;
@@ -653,7 +653,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 		public void SetInput(byte[] buffer, int index, int count)
 		{
 			input.SetInput(buffer, index, count);
-			totalIn += (long)count;
+			totalIn += count;
 		}
 
 		/// <summary>
@@ -763,7 +763,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 						adler?.Update(new ArraySegment<byte>(buffer, offset, more));
 						offset += more;
 						bytesCopied += more;
-						totalOut += (long)more;
+						totalOut += more;
 						count -= more;
 						if (count == 0)
 						{
@@ -863,7 +863,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 		{
 			get
 			{
-				return totalIn - (long)RemainingInput;
+				return totalIn - RemainingInput;
 			}
 		}
 

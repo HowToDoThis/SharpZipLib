@@ -396,7 +396,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 			if ((inputBuffer.Available > csize) && (csize >= 0))
 			{
-				inputBuffer.Available = (int)((long)inputBuffer.Available - csize);
+				inputBuffer.Available = (int)(inputBuffer.Available - csize);
 			}
 			else
 			{

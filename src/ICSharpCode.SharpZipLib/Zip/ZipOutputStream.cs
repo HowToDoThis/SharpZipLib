@@ -192,15 +192,15 @@ namespace ICSharpCode.SharpZipLib.Zip
 		// Apply any configured transforms/cleaning to the name of the supplied entry.
 		private void TransformEntryName(ZipEntry entry)
 		{
-			if (this.NameTransform != null)
+			if (NameTransform != null)
 			{
 				if (entry.IsDirectory)
 				{
-					entry.Name = this.NameTransform.TransformDirectory(entry.Name);
+					entry.Name = NameTransform.TransformDirectory(entry.Name);
 				}
 				else
 				{
-					entry.Name = this.NameTransform.TransformFile(entry.Name);
+					entry.Name = NameTransform.TransformFile(entry.Name);
 				}
 			}
 		}
@@ -263,7 +263,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 
 			// A password must have been set in order to add AES encrypted entries
-			if (entry.AESKeySize > 0 && string.IsNullOrEmpty(this.Password))
+			if (entry.AESKeySize > 0 && string.IsNullOrEmpty(Password))
 			{
 				throw new InvalidOperationException("The Password property must be set before AES encrypted entries can be added");
 			}
@@ -337,7 +337,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 
 			entry.Offset = offset;
-			entry.CompressionMethod = (CompressionMethod)method;
+			entry.CompressionMethod = method;
 
 			curMethod = method;
 			sizePatchPos = -1;
@@ -661,9 +661,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		//
 		private void WriteAESHeader(ZipEntry entry)
 		{
-			byte[] salt;
-			byte[] pwdVerifier;
-			InitializeAESPassword(entry, Password, out salt, out pwdVerifier);
+			InitializeAESPassword(entry, Password, out byte[] salt, out byte[] pwdVerifier);
 			// File format for AES:
 			// Size (bytes)   Content
 			// ------------   -------
@@ -856,7 +854,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				byte[] entryComment =
 					(entry.Comment != null) ?
 					ZipStrings.ConvertToArray(entry.Flags, entry.Comment) :
-					new byte[0];
+					Array.Empty<byte>();
 
 				if (entryComment.Length > 0xffff)
 				{
@@ -971,7 +969,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// <summary>
 		/// Comment for the entire archive recorded in central header.
 		/// </summary>
-		private byte[] zipComment = new byte[0];
+		private byte[] zipComment = Array.Empty<byte>();
 
 		/// <summary>
 		/// Flag indicating that header patching is required for the current entry.

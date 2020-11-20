@@ -445,7 +445,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 				outputStream_.UseZip64 = UseZip64;
 				scanner.ProcessFile += ProcessFile;
-				if (this.CreateEmptyDirectories)
+				if (CreateEmptyDirectories)
 				{
 					scanner.ProcessDirectory += ProcessDirectory;
 				}
@@ -842,17 +842,6 @@ namespace ICSharpCode.SharpZipLib.Zip
 			{
 				ExtractFileEntry(entry, targetName);
 			}
-		}
-
-		private static int MakeExternalAttributes(FileInfo info)
-		{
-			return (int)info.Attributes;
-		}
-
-		private static bool NameIsValid(string name)
-		{
-			return !string.IsNullOrEmpty(name) &&
-				(name.IndexOfAny(Path.GetInvalidPathChars()) < 0);
 		}
 
 		#endregion Internal Processing

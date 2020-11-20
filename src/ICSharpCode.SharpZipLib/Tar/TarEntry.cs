@@ -95,10 +95,12 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <returns>Returns a clone of this entry.</returns>
 		public object Clone()
 		{
-			var entry = new TarEntry();
-			entry.file = file;
-			entry.header = (TarHeader)header.Clone();
-			entry.Name = Name;
+			var entry = new TarEntry
+			{
+				file = file,
+				header = (TarHeader)header.Clone(),
+				Name = Name
+			};
 			return entry;
 		}
 
@@ -140,9 +142,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </returns>
 		public override bool Equals(object obj)
 		{
-			var localEntry = obj as TarEntry;
-
-			if (localEntry != null)
+			if (obj is TarEntry localEntry)
 			{
 				return Name.Equals(localEntry.Name);
 			}
@@ -430,7 +430,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			{
 				header.Mode = 1003; // Magic number for security access for a UNIX filesystem
 				header.TypeFlag = TarHeader.LF_DIR;
-				if ((header.Name.Length == 0) || header.Name[header.Name.Length - 1] != '/')
+				if ((header.Name.Length == 0) || header.Name[^1] != '/')
 				{
 					header.Name += "/";
 				}
@@ -460,7 +460,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		{
 			if ((file == null) || !Directory.Exists(file))
 			{
-				return new TarEntry[0];
+				return Array.Empty<TarEntry>();
 			}
 
 			string[] list = Directory.GetFileSystemEntries(file);

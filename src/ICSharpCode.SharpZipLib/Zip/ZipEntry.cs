@@ -210,10 +210,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 				throw new ArgumentOutOfRangeException(nameof(versionRequiredToExtract));
 			}
 
-			this.DateTime = DateTime.Now;
+			DateTime = DateTime.Now;
 			this.name = name;
-			this.versionMadeBy = (ushort)madeByInfo;
-			this.versionToExtract = (ushort)versionRequiredToExtract;
+			versionMadeBy = (ushort)madeByInfo;
+			versionToExtract = (ushort)versionRequiredToExtract;
 			this.method = method;
 
 			IsUnicodeText = ZipStrings.UseUnicode;
@@ -660,13 +660,13 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 					if ((versionToExtract == 0) && IsCrypted)
 					{
-						trueCompressedSize += (ulong)this.EncryptionOverheadSize;
+						trueCompressedSize += (ulong)EncryptionOverheadSize;
 					}
 
 					// TODO: A better estimation of the true limit based on compression overhead should be used
 					// to determine when an entry should use Zip64.
 					result =
-						((this.size >= uint.MaxValue) || (trueCompressedSize >= uint.MaxValue)) &&
+						((size >= uint.MaxValue) || (trueCompressedSize >= uint.MaxValue)) &&
 						((versionToExtract == 0) || (versionToExtract >= ZipConstants.VersionZip64));
 				}
 
@@ -810,8 +810,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 			set
 			{
-				this.size = (ulong)value;
-				this.known |= Known.Size;
+				size = (ulong)value;
+				known |= Known.Size;
 			}
 		}
 
@@ -829,8 +829,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 			set
 			{
-				this.compressedSize = (ulong)value;
-				this.known |= Known.CompressedSize;
+				compressedSize = (ulong)value;
+				known |= Known.CompressedSize;
 			}
 		}
 
@@ -851,12 +851,12 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 			set
 			{
-				if (((ulong)crc & 0xffffffff00000000L) != 0)
+				if ((crc & 0xffffffff00000000L) != 0)
 				{
 					throw new ArgumentOutOfRangeException(nameof(value));
 				}
-				this.crc = (uint)value;
-				this.known |= Known.Crc;
+				crc = (uint)value;
+				known |= Known.Crc;
 			}
 		}
 
@@ -881,7 +881,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				{
 					throw new NotSupportedException("Compression method not supported");
 				}
-				this.method = value;
+				method = value;
 			}
 		}
 
@@ -944,41 +944,24 @@ namespace ICSharpCode.SharpZipLib.Zip
 			get
 			{
 				// the strength (1 or 3) is in the entry header
-				switch (_aesEncryptionStrength)
+				return _aesEncryptionStrength switch
 				{
-					case 0:
-						return 0;   // Not AES
-					case 1:
-						return 128;
-
-					case 2:
-						return 192; // Not used by WinZip
-					case 3:
-						return 256;
-
-					default:
-						throw new ZipException("Invalid AESEncryptionStrength " + _aesEncryptionStrength);
-				}
+					0 => 0,// Not AES
+					1 => 128,
+					2 => 192,// Not used by WinZip
+					3 => 256,
+					_ => throw new ZipException("Invalid AESEncryptionStrength " + _aesEncryptionStrength),
+				};
 			}
 			set
 			{
-				switch (value)
+				_aesEncryptionStrength = value switch
 				{
-					case 0:
-						_aesEncryptionStrength = 0;
-						break;
-
-					case 128:
-						_aesEncryptionStrength = 1;
-						break;
-
-					case 256:
-						_aesEncryptionStrength = 3;
-						break;
-
-					default:
-						throw new ZipException("AESKeySize must be 0, 128 or 256: " + value);
-				}
+					0 => 0,
+					128 => 1,
+					256 => 3,
+					_ => throw new ZipException("AESKeySize must be 0, 128 or 256: " + value),
+				};
 			}
 		}
 
@@ -1031,7 +1014,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			get
 			{
 				// Entry is not encrypted - no overhead
-				if (!this.IsCrypted)
+				if (!IsCrypted)
 					return 0;
 
 				// Entry is encrypted using ZipCrypto
@@ -1039,7 +1022,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 					return ZipConstants.CryptoHeaderSize;
 
 				// Entry is encrypted using AES
-				return this.AESOverheadSize;
+				return AESOverheadSize;
 			}
 		}
 
@@ -1051,7 +1034,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// </param>
 		internal void ProcessExtraData(bool localHeader)
 		{
-			var extraData = new ZipExtraData(this.extra);
+			var extraData = new ZipExtraData(extra);
 
 			if (extraData.Find(0x0001))
 			{
@@ -1125,7 +1108,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 		}
 
-		private DateTime? GetDateTime(ZipExtraData extraData)
+		private static DateTime? GetDateTime(ZipExtraData extraData)
 		{
 			// Check for NT timestamp
 			// NOTE: Disable by default to match behavior of InfoZIP
@@ -1158,7 +1141,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				if (length < 7)
 					throw new ZipException("AES Extra Data Length " + length + " invalid.");
 				int ver = extraData.ReadShort();            // Version number (1=AE-1 2=AE-2)
-				int vendorId = extraData.ReadShort();       // 2-character vendor ID 0x4541 = "AE"
+				_ = extraData.ReadShort();       // 2-character vendor ID 0x4541 = "AE"
 				int encrStrength = extraData.ReadByte();    // encryption strength 1 = 128 2 = 192 3 = 256
 				int actualCompress = extraData.ReadShort(); // The actual compression method used to compress the file
 				_aesVer = ver;
@@ -1262,7 +1245,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// <returns>An <see cref="Object"/> that is a copy of the current instance.</returns>
 		public object Clone()
 		{
-			var result = (ZipEntry)this.MemberwiseClone();
+			var result = (ZipEntry)MemberwiseClone();
 
 			// Ensure extra data is unique if it exists.
 			if (extra != null)

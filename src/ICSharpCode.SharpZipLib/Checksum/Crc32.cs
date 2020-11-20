@@ -100,7 +100,7 @@ namespace ICSharpCode.SharpZipLib.Checksum
 
 		internal static uint ComputeCrc32(uint oldCrc, byte bval)
 		{
-			return (uint)(Crc32.crcTable[(oldCrc ^ bval) & 0xFF] ^ (oldCrc >> 8));
+			return Crc32.crcTable[(oldCrc ^ bval) & 0xFF] ^ (oldCrc >> 8);
 		}
 
 		/// <summary>
@@ -127,7 +127,7 @@ namespace ICSharpCode.SharpZipLib.Checksum
 		{
 			get
 			{
-				return (long)(checkValue ^ crcXor);
+				return checkValue ^ crcXor;
 			}
 		}
 

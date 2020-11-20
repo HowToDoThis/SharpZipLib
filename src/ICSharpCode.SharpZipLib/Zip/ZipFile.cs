@@ -345,15 +345,6 @@ namespace ICSharpCode.SharpZipLib.Zip
 		}
 
 		/// <summary>
-		/// Get/set the encryption key value.
-		/// </summary>
-		private byte[] Key
-		{
-			get { return key; }
-			set { key = value; }
-		}
-
-		/// <summary>
 		/// Password to be used for encrypting/decrypting files.
 		/// </summary>
 		/// <remarks>Set to null if no password is required.</remarks>
@@ -539,7 +530,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 			else
 			{
-				entries_ = new ZipEntry[0];
+				entries_ = Array.Empty<ZipEntry>();
 				isNewArchive_ = true;
 			}
 		}
@@ -549,7 +540,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// </summary>
 		internal ZipFile()
 		{
-			entries_ = new ZipEntry[0];
+			entries_ = Array.Empty<ZipEntry>();
 			isNewArchive_ = true;
 		}
 
@@ -968,7 +959,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 						var crc = new Crc32();
 
-						using (Stream entryStream = this.GetInputStream(this[entryIndex]))
+						using (Stream entryStream = GetInputStream(this[entryIndex]))
 						{
 							byte[] buffer = new byte[4096];
 							long totalBytes = 0;
@@ -1501,7 +1492,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				if (idx == updates_.Count - 1)
 					break;
 
-				update.OffsetBasedSize = ((ZipUpdate)updates_[idx + 1]).Entry.Offset - update.Entry.Offset;
+				update.OffsetBasedSize = updates_[idx + 1].Entry.Offset - update.Entry.Offset;
 				idx++;
 			}
 			updateCount_ = updates_.Count;
@@ -1899,7 +1890,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// Check if the specified compression method is supported for adding a new entry.
 		/// </summary>
 		/// <param name="compressionMethod">The compression method for the new entry.</param>
-		private void CheckSupportedCompressionMethod(CompressionMethod compressionMethod)
+		private static void CheckSupportedCompressionMethod(CompressionMethod compressionMethod)
 		{
 			if (compressionMethod != CompressionMethod.Deflated && compressionMethod != CompressionMethod.Stored && compressionMethod != CompressionMethod.BZip2)
 			{
@@ -2038,12 +2029,6 @@ namespace ICSharpCode.SharpZipLib.Zip
 			WriteLEInt((int)(value >> 32));
 		}
 
-		private void WriteLEUlong(ulong value)
-		{
-			WriteLEUint((uint)(value & 0xffffffff));
-			WriteLEUint((uint)(value >> 32));
-		}
-
 		private void WriteLocalEntryHeader(ZipUpdate update)
 		{
 			ZipEntry entry = update.OutEntry;
@@ -2114,7 +2099,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			{
 				// Note patch address for updating CRC later.
 				update.CrcPatchOffset = baseStream_.Position;
-				WriteLEInt((int)0);
+				WriteLEInt(0);
 			}
 			else
 			{
@@ -2328,7 +2313,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				baseStream_.Write(centralExtraData, 0, centralExtraData.Length);
 			}
 
-			byte[] rawComment = (entry.Comment != null) ? Encoding.ASCII.GetBytes(entry.Comment) : new byte[0];
+			byte[] rawComment = (entry.Comment != null) ? Encoding.ASCII.GetBytes(entry.Comment) : Array.Empty<byte>();
 
 			if (rawComment.Length > 0)
 			{
@@ -2358,14 +2343,6 @@ namespace ICSharpCode.SharpZipLib.Zip
 			INameTransform transform = NameTransform;
 			return (transform != null) ?
 				transform.TransformFile(name) :
-				name;
-		}
-
-		private string GetTransformedDirectoryName(string name)
-		{
-			INameTransform transform = NameTransform;
-			return (transform != null) ?
-				transform.TransformDirectory(name) :
 				name;
 		}
 
@@ -2463,7 +2440,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// </summary>
 		/// <param name="update">The update to get the size for.</param>
 		/// <returns>The descriptor size, zero if there isnt one.</returns>
-		private int GetDescriptorSize(ZipUpdate update)
+		private static int GetDescriptorSize(ZipUpdate update)
 		{
 			int result = 0;
 			if ((update.Entry.Flags & (int)GeneralBitFlags.Descriptor) != 0)
@@ -2483,7 +2460,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 			while (bytesToCopy > 0)
 			{
-				var readSize = (int)bytesToCopy;
+				var readSize = bytesToCopy;
 				byte[] buffer = GetBuffer();
 
 				stream.Position = sourcePosition;
@@ -2559,7 +2536,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			int result = -1;
 			if (updateIndex_.ContainsKey(entry.Name))
 			{
-				result = (int)updateIndex_[entry.Name];
+				result = updateIndex_[entry.Name];
 			}
 			/*
 						// This is slow like the coming of the next ice age but takes less storage and may be useful
@@ -2585,7 +2562,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 			if (updateIndex_.ContainsKey(convertedName))
 			{
-				result = (int)updateIndex_[convertedName];
+				result = updateIndex_[convertedName];
 			}
 
 			/*
@@ -2721,7 +2698,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			if (update.Entry.IsFile && (update.Filename != null))
 			{
 				using Stream output = workFile.GetOutputStream(update.OutEntry);
-				using Stream source = this.GetInputStream(update.Entry);
+				using Stream source = GetInputStream(update.Entry);
 				CopyBytes(update, output, source, source.Length, true);
 			}
 
@@ -2801,19 +2778,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 		private void Reopen(Stream source)
 		{
-			isNewArchive_ = false;
 			baseStream_ = source ?? throw new ZipException("Failed to reopen archive - no source");
+
+			isNewArchive_ = false;
 			ReadEntries();
-		}
-
-		private void Reopen()
-		{
-			if (Name == null)
-			{
-				throw new InvalidOperationException("Name is not known cannot Reopen");
-			}
-
-			Reopen(File.Open(Name, FileMode.Open, FileAccess.Read, FileShare.Read));
 		}
 
 		private void UpdateCommentOnly()
@@ -3300,7 +3268,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			if (!isDisposed_)
 			{
 				isDisposed_ = true;
-				entries_ = new ZipEntry[0];
+				entries_ = Array.Empty<ZipEntry>();
 
 				if (IsStreamOwner && (baseStream_ != null))
 				{
@@ -3480,7 +3448,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				// total number of disks 4 bytes
 				ReadLEUint(); // startDisk64 is not currently used
 				ulong offset64 = ReadLEUlong();
-				uint totalDisks = ReadLEUint();
+				_ = ReadLEUint();
 
 				baseStream_.Position = (long)offset64;
 				long sig64 = ReadLEUint();
@@ -3491,13 +3459,13 @@ namespace ICSharpCode.SharpZipLib.Zip
 				}
 
 				// NOTE: Record size = SizeOfFixedFields + SizeOfVariableData - 12.
-				ulong recordSize = ReadLEUlong();
-				int versionMadeBy = ReadLEUshort();
-				int versionToExtract = ReadLEUshort();
-				uint thisDisk = ReadLEUint();
-				uint centralDirDisk = ReadLEUint();
+				_ = ReadLEUlong();
+				_ = ReadLEUshort();
+				_ = ReadLEUshort();
+				_ = ReadLEUint();
+				_ = ReadLEUint();
 				entriesForThisDisk = ReadLEUlong();
-				entriesForWholeCentralDir = ReadLEUlong();
+				_ = ReadLEUlong();
 				centralDirSize = ReadLEUlong();
 				offsetOfCentralDir = (long)ReadLEUlong();
 
@@ -3541,9 +3509,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 				int nameLen = ReadLEUshort();
 				int extraLen = ReadLEUshort();
 				int commentLen = ReadLEUshort();
-
-				int diskStartNo = ReadLEUshort();  // Not currently used
-				int internalAttributes = ReadLEUshort();  // Not currently used
+				_ = ReadLEUshort();  // Not currently used
+				_ = ReadLEUshort();  // Not currently used
 
 				uint externalAttributes = ReadLEUint();
 				long offset = ReadLEUint();

@@ -101,7 +101,7 @@ namespace ICSharpCode.SharpZipLib.Core
 				}
 				else
 				{
-					result = ((float)processed_ / (float)target_) * 100.0f;
+					result = (processed_ / (float)target_) * 100.0f;
 				}
 				return result;
 			}
@@ -390,22 +390,6 @@ namespace ICSharpCode.SharpZipLib.Core
 		private void OnProcessFile(string file)
 		{
 			ProcessFileHandler handler = ProcessFile;
-
-			if (handler != null)
-			{
-				var args = new ScanEventArgs(file);
-				handler(this, args);
-				alive_ = args.ContinueRunning;
-			}
-		}
-
-		/// <summary>
-		/// Raise the complete file event
-		/// </summary>
-		/// <param name="file">The file name</param>
-		private void OnCompleteFile(string file)
-		{
-			CompletedFileHandler handler = CompletedFile;
 
 			if (handler != null)
 			{

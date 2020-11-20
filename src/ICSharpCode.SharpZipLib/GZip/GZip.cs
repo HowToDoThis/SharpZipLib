@@ -28,8 +28,10 @@ namespace ICSharpCode.SharpZipLib.GZip
 
 			try
 			{
-				using GZipInputStream gzipInput = new GZipInputStream(inStream);
-				gzipInput.IsStreamOwner = isStreamOwner;
+				using GZipInputStream gzipInput = new GZipInputStream(inStream)
+				{
+					IsStreamOwner = isStreamOwner
+				};
 				Core.StreamUtils.Copy(gzipInput, outStream, new byte[4096]);
 			}
 			finally

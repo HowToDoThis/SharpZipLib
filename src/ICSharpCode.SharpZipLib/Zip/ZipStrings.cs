@@ -174,7 +174,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// <returns>Converted array</returns>
 		public static byte[] ConvertToArray(string str)
 			=> str == null
-			? new byte[0]
+			? Array.Empty<byte>()
 			: Encoding.GetEncoding(CodePage).GetBytes(str);
 
 		/// <summary>
@@ -187,7 +187,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// <returns>Converted array</returns>
 		public static byte[] ConvertToArray(int flags, string str)
 			=> (string.IsNullOrEmpty(str))
-				? new byte[0]
+				? Array.Empty<byte>()
 				: EncodingFromFlag(flags).GetBytes(str);
 	}
 }

@@ -193,8 +193,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 		public byte[] GetData()
 		{
 			using MemoryStream ms = new MemoryStream();
-			using ZipHelperStream helperStream = new ZipHelperStream(ms);
-			helperStream.IsStreamOwner = false;
+			using ZipHelperStream helperStream = new ZipHelperStream(ms)
+			{
+				IsStreamOwner = false
+			};
 			helperStream.WriteByte((byte)_flags);     // Flags
 			if ((_flags & Flags.ModificationTime) != 0)
 			{
@@ -373,8 +375,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 		public byte[] GetData()
 		{
 			using MemoryStream ms = new MemoryStream();
-			using ZipHelperStream helperStream = new ZipHelperStream(ms);
-			helperStream.IsStreamOwner = false;
+			using ZipHelperStream helperStream = new ZipHelperStream(ms)
+			{
+				IsStreamOwner = false
+			};
 			helperStream.WriteLEInt(0);       // Reserved
 			helperStream.WriteLEShort(1);     // Tag
 			helperStream.WriteLEShort(24);    // Length = 3 x 8.
@@ -513,7 +517,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		{
 			if (data == null)
 			{
-				_data = new byte[0];
+				_data = Array.Empty<byte>();
 			}
 			else
 			{
@@ -544,7 +548,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		{
 			if ((_data == null) || (_data.Length != 0))
 			{
-				_data = new byte[0];
+				_data = Array.Empty<byte>();
 			}
 		}
 

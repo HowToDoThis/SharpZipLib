@@ -163,7 +163,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 			{
 				throw new NotImplementedException("TransformFinalBlock is not implemented and inputCount is greater than 0");
 			}
-			return new byte[0];
+			return Array.Empty<byte>();
 		}
 
 		/// <summary>

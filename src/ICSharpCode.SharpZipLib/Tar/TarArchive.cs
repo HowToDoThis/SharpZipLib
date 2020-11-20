@@ -46,11 +46,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name="message">message for this event.  Null is no message</param>
 		protected virtual void OnProgressMessageEvent(TarEntry entry, string message)
 		{
-			ProgressMessageHandler handler = ProgressMessageEvent;
-			if (handler != null)
-			{
-				handler(this, entry, message);
-			}
+			ProgressMessageEvent?.Invoke(this, entry, message);
 		}
 
 		#region Constructors
@@ -114,10 +110,9 @@ namespace ICSharpCode.SharpZipLib.Tar
 				throw new ArgumentNullException(nameof(inputStream));
 			}
 
-			var tarStream = inputStream as TarInputStream;
 
 			TarArchive result;
-			if (tarStream != null)
+			if (inputStream is TarInputStream tarStream)
 			{
 				result = new TarArchive(tarStream);
 			}
@@ -174,10 +169,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 				throw new ArgumentNullException(nameof(outputStream));
 			}
 
-			var tarStream = outputStream as TarOutputStream;
-
 			TarArchive result;
-			if (tarStream != null)
+			if (outputStream is TarOutputStream tarStream)
 			{
 				result = new TarArchive(tarStream);
 			}
@@ -185,6 +178,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			{
 				result = CreateOutputTarArchive(outputStream, TarBuffer.DefaultBlockFactor, nameEncoding);
 			}
+
 			return result;
 		}
 		/// <summary>
@@ -682,7 +676,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				if (process)
 				{
 					using var outputStream = File.Create(destFile);
-					if (this.asciiTranslate)
+					if (asciiTranslate)
 					{
 						// May need to translate the file.
 						ExtractAndTranslateEntry(destFile, outputStream);

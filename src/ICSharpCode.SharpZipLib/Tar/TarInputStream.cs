@@ -400,7 +400,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// Return a value of true if marking is supported; false otherwise.
 		/// </summary>
 		/// <remarks>Currently marking is not supported, the return value is always false.</remarks>
-		public bool IsMarkSupported
+		public static bool IsMarkSupported
 		{
 			get
 			{
@@ -414,14 +414,14 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name ="markLimit">
 		/// The limit to mark.
 		/// </param>
-		public void Mark(int markLimit)
+		public static void Mark(int markLimit)
 		{
 		}
 
 		/// <summary>
 		/// Since we do not support marking just yet, we do nothing.
 		/// </summary>
-		public void Reset()
+		public static void Reset()
 		{
 		}
 
@@ -482,50 +482,50 @@ namespace ICSharpCode.SharpZipLib.Tar
 					{
 						throw new TarException("Header checksum is invalid");
 					}
-					this.entryOffset = 0;
-					this.entrySize = header.Size;
+					entryOffset = 0;
+					entrySize = header.Size;
 
 					StringBuilder longName = null;
 
 					if (header.TypeFlag == TarHeader.LF_GNU_LONGNAME)
 					{
 						byte[] nameBuffer = new byte[TarBuffer.BlockSize];
-						long numToRead = this.entrySize;
+						long numToRead = entrySize;
 
 						longName = new StringBuilder();
 
 						while (numToRead > 0)
 						{
-							int numRead = this.Read(nameBuffer, 0, (numToRead > nameBuffer.Length ? nameBuffer.Length : (int)numToRead));
+							int numRead = Read(nameBuffer, 0, (numToRead > nameBuffer.Length ? nameBuffer.Length : (int)numToRead));
 
 							if (numRead == -1)
 							{
 								throw new InvalidHeaderException("Failed to read long name entry");
 							}
 
-							longName.Append(TarHeader.ParseName(nameBuffer, 0, numRead, encoding).ToString());
+							longName.Append(TarHeader.ParseName(nameBuffer, 0, numRead, encoding));
 							numToRead -= numRead;
 						}
 
 						SkipToNextEntry();
-						headerBuf = this.tarBuffer.ReadBlock();
+						headerBuf = tarBuffer.ReadBlock();
 					}
 					else if (header.TypeFlag == TarHeader.LF_GHDR)
 					{  // POSIX global extended header
 					   // Ignore things we dont understand completely for now
 						SkipToNextEntry();
-						headerBuf = this.tarBuffer.ReadBlock();
+						headerBuf = tarBuffer.ReadBlock();
 					}
 					else if (header.TypeFlag == TarHeader.LF_XHDR)
 					{  // POSIX extended header
 						byte[] nameBuffer = new byte[TarBuffer.BlockSize];
-						long numToRead = this.entrySize;
+						long numToRead = entrySize;
 
 						var xhr = new TarExtendedHeaderReader();
 
 						while (numToRead > 0)
 						{
-							int numRead = this.Read(nameBuffer, 0, (numToRead > nameBuffer.Length ? nameBuffer.Length : (int)numToRead));
+							int numRead = Read(nameBuffer, 0, (numToRead > nameBuffer.Length ? nameBuffer.Length : (int)numToRead));
 
 							if (numRead == -1)
 							{
@@ -542,13 +542,13 @@ namespace ICSharpCode.SharpZipLib.Tar
 						}
 
 						SkipToNextEntry();
-						headerBuf = this.tarBuffer.ReadBlock();
+						headerBuf = tarBuffer.ReadBlock();
 					}
 					else if (header.TypeFlag == TarHeader.LF_GNU_VOLHDR)
 					{
 						// TODO: could show volume name when verbose
 						SkipToNextEntry();
-						headerBuf = this.tarBuffer.ReadBlock();
+						headerBuf = tarBuffer.ReadBlock();
 					}
 					else if (header.TypeFlag != TarHeader.LF_NORMAL &&
 							 header.TypeFlag != TarHeader.LF_OLDNORM &&
@@ -580,7 +580,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 					entryOffset = 0;
 
 					// TODO: Review How do we resolve this discrepancy?!
-					entrySize = this.currentEntry.Size;
+					entrySize = currentEntry.Size;
 				}
 				catch (InvalidHeaderException ex)
 				{

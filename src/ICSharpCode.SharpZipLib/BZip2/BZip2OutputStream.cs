@@ -98,7 +98,7 @@ namespace ICSharpCode.SharpZipLib.BZip2
         private int workDone;
         private int workLimit;
         private bool firstAttempt;
-        private int nBlocksRandomised;
+        //private int nBlocksRandomised;
 
         private int currentChar = -1;
         private int runLength;
@@ -448,7 +448,7 @@ namespace ICSharpCode.SharpZipLib.BZip2
         private void Initialize()
         {
             bytesOut = 0;
-            nBlocksRandomised = 0;
+            //nBlocksRandomised = 0;
 
             /*--- Write header `magic' bytes indicating file-format == huffmanised,
             followed by a digit indicating blockSize100k.
@@ -521,7 +521,7 @@ namespace ICSharpCode.SharpZipLib.BZip2
             if (blockRandomised)
             {
                 BsW(1, 1);
-                nBlocksRandomised++;
+                //nBlocksRandomised++;
             }
             else
             {

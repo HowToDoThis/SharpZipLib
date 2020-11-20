@@ -185,7 +185,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 
 			// Drop any trailing slashes.
-			while ((name.Length > 0) && (name[name.Length - 1] == Path.DirectorySeparatorChar))
+			while ((name.Length > 0) && (name[^1] == Path.DirectorySeparatorChar))
 			{
 				name = name.Remove(name.Length - 1, 1);
 			}

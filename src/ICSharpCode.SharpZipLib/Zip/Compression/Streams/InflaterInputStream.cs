@@ -177,7 +177,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 					}
 				}
 				int toCopy = Math.Min(currentLength, available);
-				System.Array.Copy(rawData, rawLength - (int)available, outBuffer, currentOffset, toCopy);
+				System.Array.Copy(rawData, rawLength - available, outBuffer, currentOffset, toCopy);
 				currentOffset += toCopy;
 				currentLength -= toCopy;
 				available -= toCopy;
@@ -214,7 +214,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 				}
 
 				int toCopy = Math.Min(currentLength, available);
-				Array.Copy(clearText, clearTextLength - (int)available, outBuffer, currentOffset, toCopy);
+				Array.Copy(clearText, clearTextLength - available, outBuffer, currentOffset, toCopy);
 				currentOffset += toCopy;
 				currentLength -= toCopy;
 				available -= toCopy;
@@ -379,7 +379,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			}
 
 			this.baseInputStream = baseInputStream ?? throw new ArgumentNullException(nameof(baseInputStream));
-			this.inf = inflater ?? throw new ArgumentNullException(nameof(inflater));
+			inf = inflater ?? throw new ArgumentNullException(nameof(inflater));
 
 			inputBuffer = new InflaterInputBuffer(baseInputStream, bufferSize);
 		}

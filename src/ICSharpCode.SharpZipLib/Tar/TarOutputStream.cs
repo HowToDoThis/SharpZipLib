@@ -270,8 +270,10 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 			if (namelen > TarHeader.NAMELEN)
 			{
-				var longHeader = new TarHeader();
-				longHeader.TypeFlag = TarHeader.LF_GNU_LONGNAME;
+				var longHeader = new TarHeader
+				{
+					TypeFlag = TarHeader.LF_GNU_LONGNAME
+				};
 				longHeader.Name += "././@LongLink";
 				longHeader.Mode = 420;//644 by default
 				longHeader.UserId = entry.UserId;
@@ -289,7 +291,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				while (nameCharIndex < namelen + 1 /* we've allocated one for the null char, now we must make sure it gets written out */)
 				{
 					Array.Clear(blockBuffer, 0, blockBuffer.Length);
-					TarHeader.GetAsciiBytes(entry.TarHeader.Name, nameCharIndex, this.blockBuffer, 0, TarBuffer.BlockSize, nameEncoding); // This func handles OK the extra char out of string length
+					TarHeader.GetAsciiBytes(entry.TarHeader.Name, nameCharIndex, blockBuffer, 0, TarBuffer.BlockSize, nameEncoding); // This func handles OK the extra char out of string length
 					nameCharIndex += TarBuffer.BlockSize;
 					buffer.WriteBlock(blockBuffer);
 				}
@@ -388,7 +390,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			if ((currBytes + count) > currSize)
 			{
 				string errorText = string.Format("request to write '{0}' bytes exceeds size in header of '{1}' bytes",
-					count, this.currSize);
+					count, currSize);
 				throw new ArgumentOutOfRangeException(nameof(count), errorText);
 			}
 

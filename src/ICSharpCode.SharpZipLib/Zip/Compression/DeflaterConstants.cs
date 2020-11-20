@@ -137,6 +137,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 		/// </summary>
 		public static int[] MAX_CHAIN = { 0, 4, 8, 32, 16, 32, 128, 256, 1024, 4096 };
 
+
 		/// <summary>
 		/// Internal compression engine constant
 		/// </summary>

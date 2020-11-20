@@ -501,7 +501,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <returns>A new <see cref="Object"/> that is a copy of the current instance.</returns>
 		public object Clone()
 		{
-			return this.MemberwiseClone();
+			return MemberwiseClone();
 		}
 
 		#endregion ICloneable Members
@@ -668,10 +668,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <returns>true if the objects are equal, false otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			var localHeader = obj as TarHeader;
-
 			bool result;
-			if (localHeader != null)
+			if (obj is TarHeader localHeader)
 			{
 				result = (name == localHeader.name)
 					&& (mode == localHeader.mode)
