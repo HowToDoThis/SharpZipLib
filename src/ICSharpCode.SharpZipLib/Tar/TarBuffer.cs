@@ -141,18 +141,13 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <returns>A new <see cref="TarBuffer"/> suitable for input.</returns>
 		public static TarBuffer CreateInputTarBuffer(Stream inputStream, int blockFactor)
 		{
-			if (inputStream == null)
-			{
-				throw new ArgumentNullException(nameof(inputStream));
-			}
-
 			if (blockFactor <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(blockFactor), "Factor cannot be negative");
 			}
 
 			var tarBuffer = new TarBuffer();
-			tarBuffer.inputStream = inputStream;
+			tarBuffer.inputStream = inputStream ?? throw new ArgumentNullException(nameof(inputStream));
 			tarBuffer.outputStream = null;
 			tarBuffer.Initialize(blockFactor);
 
@@ -182,11 +177,6 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <returns>A new <see cref="TarBuffer"/> suitable for output.</returns>
 		public static TarBuffer CreateOutputTarBuffer(Stream outputStream, int blockFactor)
 		{
-			if (outputStream == null)
-			{
-				throw new ArgumentNullException(nameof(outputStream));
-			}
-
 			if (blockFactor <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(blockFactor), "Factor cannot be negative");
@@ -194,7 +184,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 			var tarBuffer = new TarBuffer();
 			tarBuffer.inputStream = null;
-			tarBuffer.outputStream = outputStream;
+			tarBuffer.outputStream = outputStream ?? throw new ArgumentNullException(nameof(outputStream));
 			tarBuffer.Initialize(blockFactor);
 
 			return tarBuffer;

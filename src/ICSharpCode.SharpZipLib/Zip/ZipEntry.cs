@@ -1322,7 +1322,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			{
 				// NOTE:
 				// for UNC names...  \\machine\share\zoom\beet.txt gives \zoom\beet.txt
-				name = name.Substring(Path.GetPathRoot(name).Length);
+				name = name[Path.GetPathRoot(name).Length..];
 			}
 
 			name = name.Replace(@"\", "/");

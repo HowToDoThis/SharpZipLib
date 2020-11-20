@@ -28,11 +28,9 @@ namespace ICSharpCode.SharpZipLib.GZip
 
 			try
 			{
-				using (GZipInputStream gzipInput = new GZipInputStream(inStream))
-				{
-					gzipInput.IsStreamOwner = isStreamOwner;
-					Core.StreamUtils.Copy(gzipInput, outStream, new byte[4096]);
-				}
+				using GZipInputStream gzipInput = new GZipInputStream(inStream);
+				gzipInput.IsStreamOwner = isStreamOwner;
+				Core.StreamUtils.Copy(gzipInput, outStream, new byte[4096]);
 			}
 			finally
 			{
@@ -72,12 +70,10 @@ namespace ICSharpCode.SharpZipLib.GZip
 
 			try
 			{
-				using (GZipOutputStream gzipOutput = new GZipOutputStream(outStream, bufferSize))
-				{
-					gzipOutput.SetLevel(level);
-					gzipOutput.IsStreamOwner = isStreamOwner;
-					Core.StreamUtils.Copy(inStream, gzipOutput, new byte[bufferSize]);
-				}
+				using GZipOutputStream gzipOutput = new GZipOutputStream(outStream, bufferSize);
+				gzipOutput.SetLevel(level);
+				gzipOutput.IsStreamOwner = isStreamOwner;
+				Core.StreamUtils.Copy(inStream, gzipOutput, new byte[bufferSize]);
 			}
 			finally
 			{

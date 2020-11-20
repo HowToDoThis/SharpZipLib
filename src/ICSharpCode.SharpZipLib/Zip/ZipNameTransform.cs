@@ -89,7 +89,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				string lowerName = name.ToLower();
 				if ((trimPrefix_ != null) && (lowerName.IndexOf(trimPrefix_, StringComparison.Ordinal) == 0))
 				{
-					name = name.Substring(trimPrefix_.Length);
+					name = name[trimPrefix_.Length..];
 				}
 
 				name = name.Replace(@"\", "/");

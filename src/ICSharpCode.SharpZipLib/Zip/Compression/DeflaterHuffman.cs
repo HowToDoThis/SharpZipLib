@@ -55,10 +55,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 			15
 		};
 
-		private static short[] staticLCodes;
-		private static byte[] staticLLength;
-		private static short[] staticDCodes;
-		private static byte[] staticDLength;
+		private static readonly short[] staticLCodes;
+		private static readonly byte[] staticLLength;
+		private static readonly short[] staticDCodes;
+		private static readonly byte[] staticDLength;
 
 		private class Tree
 		{
@@ -75,7 +75,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 			private short[] codes;
 			private readonly int[] bl_counts;
 			private readonly int maxLength;
-			private DeflaterHuffman dh;
+			private readonly DeflaterHuffman dh;
 
 			#endregion Instance Fields
 
@@ -586,14 +586,14 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 		/// </summary>
 		public DeflaterPending pending;
 
-		private Tree literalTree;
-		private Tree distTree;
-		private Tree blTree;
+		private readonly Tree literalTree;
+		private readonly Tree distTree;
+		private readonly Tree blTree;
 
 		// Buffer for distances
-		private short[] d_buf;
+		private readonly short[] d_buf;
 
-		private byte[] l_buf;
+		private readonly byte[] l_buf;
 		private int last_lit;
 		private int extra_bits;
 

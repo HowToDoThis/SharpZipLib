@@ -604,16 +604,14 @@ namespace ICSharpCode.SharpZipLib.Zip
 					// The open below is equivalent to OpenRead which guarantees that if opened the
 					// file will not be changed by subsequent openers, but precludes opening in some cases
 					// were it could succeed. ie the open may fail as its already open for writing and the share mode should reflect that.
-					using (FileStream stream = File.Open(e.Name, FileMode.Open, FileAccess.Read, FileShare.Read))
-					{
-						ZipEntry entry = entryFactory_.MakeFileEntry(e.Name);
+					using FileStream stream = File.Open(e.Name, FileMode.Open, FileAccess.Read, FileShare.Read);
+					ZipEntry entry = entryFactory_.MakeFileEntry(e.Name);
 
-						// Set up AES encryption for the entry if required.
-						ConfigureEntryEncryption(entry);
+					// Set up AES encryption for the entry if required.
+					ConfigureEntryEncryption(entry);
 
-						outputStream_.PutNextEntry(entry);
-						AddFileContents(e.Name, stream);
-					}
+					outputStream_.PutNextEntry(entry);
+					AddFileContents(e.Name, stream);
 				}
 				catch (Exception ex)
 				{
@@ -874,7 +872,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		private bool restoreDateTimeOnExtract_;
 		private bool restoreAttributesOnExtract_;
 		private bool createEmptyDirectories_;
-		private FastZipEvents events_;
+		private readonly FastZipEvents events_;
 		private IEntryFactory entryFactory_ = new ZipEntryFactory();
 		private INameTransform extractNameTransform_;
 		private UseZip64 useZip64_ = UseZip64.Dynamic;

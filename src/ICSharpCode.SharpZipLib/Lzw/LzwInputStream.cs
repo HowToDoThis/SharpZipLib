@@ -525,7 +525,7 @@ namespace ICSharpCode.SharpZipLib.Lzw
 
 		#region Instance Fields
 
-		private Stream baseInputStream;
+		private readonly Stream baseInputStream;
 
 		/// <summary>
 		/// Flag indicating wether this instance has been closed or not.

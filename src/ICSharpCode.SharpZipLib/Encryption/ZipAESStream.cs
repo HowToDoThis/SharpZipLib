@@ -45,8 +45,8 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		// total length of block + auth code
 		private const int BLOCK_AND_AUTH = CRYPTO_BLOCK_SIZE + AUTH_CODE_LENGTH;
 
-		private Stream _stream;
-		private ZipAESTransform _transform;
+		private readonly Stream _stream;
+		private readonly ZipAESTransform _transform;
 		private byte[] _slideBuffer;
 		private int _slideBufStartPos;
 		private int _slideBufFreePos;

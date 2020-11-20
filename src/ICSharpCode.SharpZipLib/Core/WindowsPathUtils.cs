@@ -43,7 +43,7 @@ namespace ICSharpCode.SharpZipLib.Core
 
 						if (index < path.Length)
 						{
-							result = path.Substring(index);
+							result = path[index..];
 						}
 						else
 						{

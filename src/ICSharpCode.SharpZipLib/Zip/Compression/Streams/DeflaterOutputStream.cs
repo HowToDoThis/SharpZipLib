@@ -469,7 +469,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 		/// This buffer is used temporarily to retrieve the bytes from the
 		/// deflater and write them to the underlying output stream.
 		/// </summary>
-		private byte[] buffer_;
+		private readonly byte[] buffer_;
 
 		/// <summary>
 		/// The deflater which is used to deflate the stream.

@@ -43,7 +43,12 @@ namespace ICSharpCode.SharpZipLib
 		{
 		}
 
-		private ValueOutOfRangeException(string message, Exception innerException) : base(message, innerException)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="message"></param>
+		/// <param name="innerException"></param>
+		public ValueOutOfRangeException(string message, Exception innerException) : base(message, innerException)
 		{
 		}
 

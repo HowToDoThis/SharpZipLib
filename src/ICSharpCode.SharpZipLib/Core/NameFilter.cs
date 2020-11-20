@@ -78,11 +78,11 @@ namespace ICSharpCode.SharpZipLib.Core
 
 							if (items[i][0] == '+')
 							{
-								toCompile = items[i].Substring(1, items[i].Length - 1);
+								toCompile = items[i][1..];
 							}
 							else if (items[i][0] == '-')
 							{
-								toCompile = items[i].Substring(1, items[i].Length - 1);
+								toCompile = items[i][1..];
 							}
 							else
 							{
@@ -247,11 +247,11 @@ namespace ICSharpCode.SharpZipLib.Core
 
 					if (items[i][0] == '+')
 					{
-						toCompile = items[i].Substring(1, items[i].Length - 1);
+						toCompile = items[i][1..];
 					}
 					else if (items[i][0] == '-')
 					{
-						toCompile = items[i].Substring(1, items[i].Length - 1);
+						toCompile = items[i][1..];
 					}
 					else
 					{
@@ -275,9 +275,9 @@ namespace ICSharpCode.SharpZipLib.Core
 
 		#region Instance Fields
 
-		private string filter_;
-		private List<Regex> inclusions_;
-		private List<Regex> exclusions_;
+		private readonly string filter_;
+		private readonly List<Regex> inclusions_;
+		private readonly List<Regex> exclusions_;
 
 		#endregion Instance Fields
 	}

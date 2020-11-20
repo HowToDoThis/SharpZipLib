@@ -41,7 +41,7 @@ namespace ICSharpCode.SharpZipLib.Core
 
 		#region Instance Fields
 
-		private string name_;
+		private readonly string name_;
 		private bool continueRunning_ = true;
 
 		#endregion Instance Fields
@@ -126,9 +126,9 @@ namespace ICSharpCode.SharpZipLib.Core
 
 		#region Instance Fields
 
-		private string name_;
-		private long processed_;
-		private long target_;
+		private readonly string name_;
+		private readonly long processed_;
+		private readonly long target_;
 		private bool continueRunning_ = true;
 
 		#endregion Instance Fields
@@ -219,8 +219,8 @@ namespace ICSharpCode.SharpZipLib.Core
 
 		#region Instance Fields
 
-		private string name_;
-		private Exception exception_;
+		private readonly string name_;
+		private readonly Exception exception_;
 		private bool continueRunning_;
 
 		#endregion Instance Fields
@@ -528,12 +528,12 @@ namespace ICSharpCode.SharpZipLib.Core
 		/// <summary>
 		/// The file filter currently in use.
 		/// </summary>
-		private IScanFilter fileFilter_;
+		private readonly IScanFilter fileFilter_;
 
 		/// <summary>
 		/// The directory filter currently in use.
 		/// </summary>
-		private IScanFilter directoryFilter_;
+		private readonly IScanFilter directoryFilter_;
 
 		/// <summary>
 		/// Flag indicating if scanning should continue running.

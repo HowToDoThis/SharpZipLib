@@ -19,7 +19,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 		#region Instance Fields
 
-		private byte[] window = new byte[WindowSize]; //The window is 2^15 bytes
+		private readonly byte[] window = new byte[WindowSize]; //The window is 2^15 bytes
 		private int windowEnd;
 		private int windowFilled;
 

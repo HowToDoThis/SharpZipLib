@@ -384,12 +384,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				throw new ArgumentNullException(nameof(header));
 			}
 
-			if (file == null)
-			{
-				throw new ArgumentNullException(nameof(file));
-			}
-
-			this.file = file;
+			this.file = file ?? throw new ArgumentNullException(nameof(file));
 
 			// bugfix from torhovl from #D forum:
 			string name = file;
@@ -397,7 +392,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			// 23-Jan-2004 GnuTar allows device names in path where the name is not local to the current directory
 			if (name.IndexOf(Directory.GetCurrentDirectory(), StringComparison.Ordinal) == 0)
 			{
-				name = name.Substring(Directory.GetCurrentDirectory().Length);
+				name = name[Directory.GetCurrentDirectory().Length..];
 			}
 
 			/*
@@ -425,7 +420,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			// so we loop on starting /'s.
 			while (name.StartsWith("/", StringComparison.Ordinal))
 			{
-				name = name.Substring(1);
+				name = name[1..];
 			}
 
 			header.LinkName = String.Empty;
@@ -437,7 +432,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				header.TypeFlag = TarHeader.LF_DIR;
 				if ((header.Name.Length == 0) || header.Name[header.Name.Length - 1] != '/')
 				{
-					header.Name = header.Name + "/";
+					header.Name += "/";
 				}
 
 				header.Size = 0;

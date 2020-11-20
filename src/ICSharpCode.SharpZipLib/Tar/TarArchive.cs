@@ -68,12 +68,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name="stream">The <see cref="TarInputStream"/> to use for input.</param>
 		protected TarArchive(TarInputStream stream)
 		{
-			if (stream == null)
-			{
-				throw new ArgumentNullException(nameof(stream));
-			}
-
-			tarIn = stream;
+			tarIn = stream ?? throw new ArgumentNullException(nameof(stream));
 		}
 
 		/// <summary>
@@ -82,12 +77,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name="stream">The <see cref="TarOutputStream"/> to use for output.</param>
 		protected TarArchive(TarOutputStream stream)
 		{
-			if (stream == null)
-			{
-				throw new ArgumentNullException(nameof(stream));
-			}
-
-			tarOut = stream;
+			tarOut = stream ?? throw new ArgumentNullException(nameof(stream));
 		}
 
 		#endregion Constructors
@@ -652,7 +642,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			{
 				// NOTE:
 				// for UNC names...  \\machine\share\zoom\beet.txt gives \zoom\beet.txt
-				name = name.Substring(Path.GetPathRoot(name).Length);
+				name = name[Path.GetPathRoot(name).Length..];
 			}
 
 			name = name.Replace('/', Path.DirectorySeparatorChar);
@@ -691,18 +681,16 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 				if (process)
 				{
-					using (var outputStream = File.Create(destFile))
+					using var outputStream = File.Create(destFile);
+					if (this.asciiTranslate)
 					{
-						if (this.asciiTranslate)
-						{
-							// May need to translate the file.
-							ExtractAndTranslateEntry(destFile, outputStream);
-						}
-						else
-						{
-							// If translation is disabled, just copy the entry across directly.
-							tarIn.CopyEntryContents(outputStream);
-						}
+						// May need to translate the file.
+						ExtractAndTranslateEntry(destFile, outputStream);
+					}
+					else
+					{
+						// If translation is disabled, just copy the entry across directly.
+						tarIn.CopyEntryContents(outputStream);
 					}
 				}
 			}
@@ -715,27 +703,25 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 			if (asciiTrans)
 			{
-				using (var outw = new StreamWriter(outputStream, new UTF8Encoding(false), 1024, true))
+				using var outw = new StreamWriter(outputStream, new UTF8Encoding(false), 1024, true);
+				byte[] rdbuf = new byte[32 * 1024];
+
+				while (true)
 				{
-					byte[] rdbuf = new byte[32 * 1024];
+					int numRead = tarIn.Read(rdbuf, 0, rdbuf.Length);
 
-					while (true)
+					if (numRead <= 0)
 					{
-						int numRead = tarIn.Read(rdbuf, 0, rdbuf.Length);
+						break;
+					}
 
-						if (numRead <= 0)
+					for (int off = 0, b = 0; b < numRead; ++b)
+					{
+						if (rdbuf[b] == 10)
 						{
-							break;
-						}
-
-						for (int off = 0, b = 0; b < numRead; ++b)
-						{
-							if (rdbuf[b] == 10)
-							{
-								string s = Encoding.ASCII.GetString(rdbuf, off, (b - off));
-								outw.WriteLine(s);
-								off = b + 1;
-							}
+							string s = Encoding.ASCII.GetString(rdbuf, off, (b - off));
+							outw.WriteLine(s);
+							off = b + 1;
 						}
 					}
 				}
@@ -828,22 +814,20 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 					using (StreamReader inStream = File.OpenText(entryFilename))
 					{
-						using (Stream outStream = File.Create(tempFileName))
+						using Stream outStream = File.Create(tempFileName);
+						while (true)
 						{
-							while (true)
+							string line = inStream.ReadLine();
+							if (line == null)
 							{
-								string line = inStream.ReadLine();
-								if (line == null)
-								{
-									break;
-								}
-								byte[] data = Encoding.ASCII.GetBytes(line);
-								outStream.Write(data, 0, data.Length);
-								outStream.WriteByte((byte)'\n');
+								break;
 							}
-
-							outStream.Flush();
+							byte[] data = Encoding.ASCII.GetBytes(line);
+							outStream.Write(data, 0, data.Length);
+							outStream.WriteByte((byte)'\n');
 						}
+
+						outStream.Flush();
 					}
 
 					entry.Size = new FileInfo(tempFileName).Length;
@@ -857,7 +841,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			{
 				if (entry.Name.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
 				{
-					newName = entry.Name.Substring(rootPath.Length + 1);
+					newName = entry.Name[(rootPath.Length + 1)..];
 				}
 			}
 
@@ -1018,8 +1002,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 		private bool applyUserInfoOverrides;
 
-		private TarInputStream tarIn;
-		private TarOutputStream tarOut;
+		private readonly TarInputStream tarIn;
+		private readonly TarOutputStream tarOut;
 		private bool isDisposed;
 
 		#endregion Instance Fields

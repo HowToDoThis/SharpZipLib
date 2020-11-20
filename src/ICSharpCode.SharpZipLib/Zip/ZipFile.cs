@@ -1572,10 +1572,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 					if (entries_.Length == 0)
 					{
 						byte[] theComment = (newComment_ != null) ? newComment_.RawComment : ZipStrings.ConvertToArray(comment_);
-						using (ZipHelperStream zhs = new ZipHelperStream(baseStream_))
-						{
-							zhs.WriteEndOfCentralDirectory(0, 0, 0, theComment);
-						}
+						using ZipHelperStream zhs = new ZipHelperStream(baseStream_);
+						zhs.WriteEndOfCentralDirectory(0, 0, 0, theComment);
 					}
 				}
 			}
@@ -1949,9 +1947,9 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 
 			CheckUpdating();
-
-			bool result = false;
 			int index = FindExistingUpdate(fileName);
+
+			bool result;
 			if ((index >= 0) && (updates_[index] != null))
 			{
 				result = true;
@@ -2722,13 +2720,9 @@ namespace ICSharpCode.SharpZipLib.Zip
 			// TODO: This is slow if the changes don't effect the data!!
 			if (update.Entry.IsFile && (update.Filename != null))
 			{
-				using (Stream output = workFile.GetOutputStream(update.OutEntry))
-				{
-					using (Stream source = this.GetInputStream(update.Entry))
-					{
-						CopyBytes(update, output, source, source.Length, true);
-					}
-				}
+				using Stream output = workFile.GetOutputStream(update.OutEntry);
+				using Stream source = this.GetInputStream(update.Entry);
+				CopyBytes(update, output, source, source.Length, true);
 			}
 
 			long dataEnd = workFile.baseStream_.Position;
@@ -2746,8 +2740,6 @@ namespace ICSharpCode.SharpZipLib.Zip
 				destinationPosition = baseStream_.Position;
 			}
 
-			long sourcePosition = 0;
-
 			const int NameLengthOffset = 26;
 
 			// TODO: Add base for SFX friendly handling
@@ -2760,7 +2752,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			uint nameLength = ReadLEUshort();
 			uint extraLength = ReadLEUshort();
 
-			sourcePosition = baseStream_.Position + nameLength + extraLength;
+			long sourcePosition = baseStream_.Position + nameLength + extraLength;
 
 			if (skipOver)
 			{
@@ -2828,8 +2820,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		{
 			long baseLength = baseStream_.Length;
 
-			ZipHelperStream updateFile = null;
-
+			ZipHelperStream updateFile;
 			if (archiveStorage_.UpdateMode == FileUpdateMode.Safe)
 			{
 				Stream copyStream = archiveStorage_.MakeTemporaryCopy(baseStream_);
@@ -2954,7 +2945,6 @@ namespace ICSharpCode.SharpZipLib.Zip
 		private void RunUpdates()
 		{
 			long sizeEntries = 0;
-			long endOfStream = 0;
 			bool directUpdate = false;
 			long destinationPosition = 0; // NOT SFX friendly
 
@@ -2987,6 +2977,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				}
 			}
 
+			long endOfStream;
 			try
 			{
 				foreach (ZipUpdate update in updates_)
@@ -3277,10 +3268,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 			#region Instance Fields
 
-			private ZipEntry entry_;
+			private readonly ZipEntry entry_;
 			private ZipEntry outEntry_;
 			private readonly UpdateCommand command_;
-			private IStaticDataSource dataSource_;
+			private readonly IStaticDataSource dataSource_;
 			private readonly string filename_;
 			private long sizePatchOffset_ = -1;
 			private long crcPatchOffset_ = -1;
@@ -3390,10 +3381,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 		// NOTE this returns the offset of the first byte after the signature.
 		private long LocateBlockWithSignature(int signature, long endLocation, int minimumBlockSize, int maximumVariableData)
 		{
-			using (ZipHelperStream les = new ZipHelperStream(baseStream_))
-			{
-				return les.LocateBlockWithSignature(signature, endLocation, minimumBlockSize, maximumVariableData);
-			}
+			using ZipHelperStream les = new ZipHelperStream(baseStream_);
+			return les.LocateBlockWithSignature(signature, endLocation, minimumBlockSize, maximumVariableData);
 		}
 
 		/// <summary>
@@ -3624,8 +3613,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 		private Stream CreateAndInitDecryptionStream(Stream baseStream, ZipEntry entry)
 		{
-			CryptoStream result = null;
-
+			CryptoStream result;
 			if (entry.CompressionMethodForHeader == CompressionMethod.WinZipAES)
 			{
 				if (entry.Version >= ZipConstants.VERSION_AES)
@@ -3924,7 +3912,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 			#region Instance Fields
 
-			private ZipEntry[] array;
+			private readonly ZipEntry[] array;
 			private int index = -1;
 
 			#endregion Instance Fields
@@ -4346,8 +4334,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 			#region Instance Fields
 
-			private ZipFile zipFile_;
-			private Stream baseStream_;
+			private readonly ZipFile zipFile_;
+			private readonly Stream baseStream_;
 			private readonly long start_;
 			private readonly long length_;
 			private long readPos_;
@@ -4650,11 +4638,11 @@ namespace ICSharpCode.SharpZipLib.Zip
 				throw new ZipException("No temporary stream has been created");
 			}
 
-			Stream result = null;
-
 			string moveTempName = GetTempFileName(fileName_, false);
 			bool newFileCreated = false;
 
+
+			Stream result;
 			try
 			{
 				temporaryStream_.Dispose();
@@ -4667,7 +4655,6 @@ namespace ICSharpCode.SharpZipLib.Zip
 			}
 			catch (Exception)
 			{
-				result = null;
 
 				// Try to roll back changes...
 				if (!newFileCreated)

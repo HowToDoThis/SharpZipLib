@@ -675,7 +675,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public class EntryFactoryAdapter : IEntryFactory
 		{
-			Encoding nameEncoding;
+			readonly Encoding nameEncoding;
 			/// <summary>
 			/// Construct standard entry factory class with ASCII name encoding
 			/// </summary>
