@@ -1,4 +1,11 @@
-# SharpZipLib [![Build status](https://ci.appveyor.com/api/projects/status/wuf8l79mypqsbor3/branch/master?svg=true)](https://ci.appveyor.com/project/icsharpcode/sharpziplib/branch/master) [![NuGet Version](https://img.shields.io/nuget/v/SharpZipLib.svg)](https://www.nuget.org/packages/SharpZipLib/)
+# About This Fork
+This Fork are using .NET 5.0 as base, and fix solution by CodeAnalysis or my self for personal project used.
+
+# SharpZipLib
+
+#### Master Build Status [![Build status](https://ci.appveyor.com/api/projects/status/wuf8l79mypqsbor3/branch/master?svg=true)](https://ci.appveyor.com/project/icsharpcode/sharpziplib/branch/master) [![NuGet Version](https://img.shields.io/nuget/v/SharpZipLib.svg)](https://www.nuget.org/packages/SharpZipLib/)
+#### Fork Build Status [![Build Status](https://travis-ci.com/HowToDoThis/SharpZipLib.svg?branch=master)](https://travis-ci.com/HowToDoThis/SharpZipLib)
+
 
 Introduction
 ------------

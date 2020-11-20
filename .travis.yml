@@ -17,7 +17,7 @@ install:
 # - nuget install NUnit.Console -Version 3.8.0 -OutputDirectory _testRunner
 
 script:
-  - dotnet build -C Release src/ICSharpCode.SharpZipLib/ICSharpCode.SharpZipLib.csproj
+  - dotnet build -c Release src/ICSharpCode.SharpZipLib/ICSharpCode.SharpZipLib.csproj
 #  - dotnet run -c Debug -f netcoreapp2 -p test/ICSharpCode.SharpZipLib.TestBootstrapper/ICSharpCode.SharpZipLib.TestBootstrapper.csproj -- --where "class !~ WindowsNameTransformHandling & test !~ ZipEntryFactoryHandling.CreatedValues & test !~ ZipNameTransformHandling.FilenameCleaning" --result=docs/nunit3-test-results-debug.xml
 #  - dotnet run -c Release -f netcoreapp2 -p test/ICSharpCode.SharpZipLib.TestBootstrapper/ICSharpCode.SharpZipLib.TestBootstrapper.csproj -- --where "class !~ WindowsNameTransformHandling & test !~ ZipEntryFactoryHandling.CreatedValues & test !~ ZipNameTransformHandling.FilenameCleaning" --result=docs\nunit3-test-results-release.xml
 #  - dotnet test test/ICSharpCode.SharpZipLib.Tests/ICSharpCode.SharpZipLib.Tests.csproj
