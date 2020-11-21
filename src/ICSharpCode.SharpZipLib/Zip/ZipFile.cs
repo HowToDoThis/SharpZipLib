@@ -1066,7 +1066,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				bool testData = (tests & HeaderTest.Extract) != 0;
 
 				var entryAbsOffset = offsetOfFirstEntry + entry.Offset;
-				
+
 				baseStream_.Seek(entryAbsOffset, SeekOrigin.Begin);
 				var signature = (int)ReadLEUint();
 
@@ -3826,7 +3826,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			/// </summary>
 			/// <param name="zipString">The <see cref="ZipString"/> to convert to a string.</param>
 			/// <returns>The textual equivalent for the input value.</returns>
-			static public implicit operator string(ZipString zipString)
+			public static implicit operator string(ZipString zipString)
 			{
 				zipString.MakeTextAvailable();
 				return zipString.comment_;
@@ -4463,7 +4463,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 	/// <summary>
 	/// An abstract <see cref="IArchiveStorage"/> suitable for extension by inheritance.
 	/// </summary>
-	abstract public class BaseArchiveStorage : IArchiveStorage
+	public abstract class BaseArchiveStorage : IArchiveStorage
 	{
 		#region Constructors
 
@@ -4577,18 +4577,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// <returns>Returns the temporary output stream.</returns>
 		public override Stream GetTemporaryOutput()
 		{
-			if (temporaryName_ != null)
-			{
-				temporaryName_ = GetTempFileName(temporaryName_, true);
-				temporaryStream_ = File.Open(temporaryName_, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
-			}
-			else
-			{
-				// Determine where to place files based on internal strategy.
-				// Currently this is always done in system temp directory.
-				temporaryName_ = Path.GetTempFileName();
-				temporaryStream_ = File.Open(temporaryName_, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
-			}
+			temporaryName_ = PathUtils.GetTempFileName(temporaryName_);
+			temporaryStream_ = File.Open(temporaryName_, FileMode.OpenOrCreate, FileAccess.Write);
 
 			return temporaryStream_;
 		}
@@ -4601,20 +4591,19 @@ namespace ICSharpCode.SharpZipLib.Zip
 		public override Stream ConvertTemporaryToFinal()
 		{
 			if (temporaryStream_ == null)
-			{
 				throw new ZipException("No temporary stream has been created");
-			}
 
-			string moveTempName = GetTempFileName(fileName_, false);
+			string moveTempName = PathUtils.GetTempFileName(fileName_);
 			bool newFileCreated = false;
-
 
 			Stream result;
 			try
 			{
 				temporaryStream_.Dispose();
+
 				File.Move(fileName_, moveTempName);
 				File.Move(temporaryName_, fileName_);
+
 				newFileCreated = true;
 				File.Delete(moveTempName);
 
@@ -4645,12 +4634,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 		{
 			stream.Dispose();
 
-			temporaryName_ = GetTempFileName(fileName_, true);
+			temporaryName_ = PathUtils.GetTempFileName(fileName_);
 			File.Copy(fileName_, temporaryName_, true);
 
-			temporaryStream_ = new FileStream(temporaryName_,
-				FileMode.Open,
-				FileAccess.ReadWrite);
+			temporaryStream_ = new FileStream(temporaryName_, FileMode.Open, FileAccess.ReadWrite);
 			return temporaryStream_;
 		}
 
@@ -4666,18 +4653,12 @@ namespace ICSharpCode.SharpZipLib.Zip
 			if ((stream == null) || !stream.CanWrite)
 			{
 				if (stream != null)
-				{
 					stream.Dispose();
-				}
 
-				result = new FileStream(fileName_,
-						FileMode.Open,
-						FileAccess.ReadWrite);
+				result = new FileStream(fileName_,						FileMode.Open,						FileAccess.ReadWrite);
 			}
 			else
-			{
 				result = stream;
-			}
 
 			return result;
 		}
@@ -4688,60 +4669,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 		public override void Dispose()
 		{
 			if (temporaryStream_ != null)
-			{
 				temporaryStream_.Dispose();
-			}
 		}
 
 		#endregion IArchiveStorage Members
-
-		#region Internal routines
-
-		private static string GetTempFileName(string original, bool makeTempFile)
-		{
-			string result = null;
-
-			if (original == null)
-			{
-				result = Path.GetTempFileName();
-			}
-			else
-			{
-				int counter = 0;
-				int suffixSeed = DateTime.Now.Second;
-
-				while (result == null)
-				{
-					counter += 1;
-					string newName = string.Format("{0}.{1}{2}.tmp", original, suffixSeed, counter);
-					if (!File.Exists(newName))
-					{
-						if (makeTempFile)
-						{
-							try
-							{
-								// Try and create the file.
-								using (FileStream stream = File.Create(newName))
-								{
-								}
-								result = newName;
-							}
-							catch
-							{
-								suffixSeed = DateTime.Now.Second;
-							}
-						}
-						else
-						{
-							result = newName;
-						}
-					}
-				}
-			}
-			return result;
-		}
-
-		#endregion Internal routines
 
 		#region Instance Fields
 
