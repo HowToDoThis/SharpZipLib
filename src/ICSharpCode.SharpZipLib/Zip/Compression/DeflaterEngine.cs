@@ -215,7 +215,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 				length = DeflaterConstants.MAX_DIST;
 			}
 
-			System.Array.Copy(buffer, offset, window, strstart, length);
+			Array.Copy(buffer, offset, window, strstart, length);
 
 			UpdateHash();
 			--length;
@@ -385,7 +385,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 					more = inputEnd - inputOff;
 				}
 
-				System.Array.Copy(inputBuf, inputOff, window, strstart + lookahead, more);
+				Array.Copy(inputBuf, inputOff, window, strstart + lookahead, more);
 				adler?.Update(new ArraySegment<byte>(inputBuf, inputOff, more));
 
 				inputOff += more;

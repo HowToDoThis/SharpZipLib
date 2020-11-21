@@ -574,7 +574,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				if (!string.IsNullOrEmpty(prefix)) Name = prefix + '/' + Name;
 			}
 
-			isChecksumValid = Checksum == TarHeader.MakeCheckSum(header);
+			isChecksumValid = Checksum == MakeCheckSum(header);
 		}
 
 		/// <summary>

@@ -19,7 +19,6 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		{
 			if (inStream == null)
 				throw new ArgumentNullException(nameof(inStream));
-
 			if (outStream == null)
 				throw new ArgumentNullException(nameof(outStream));
 
@@ -54,7 +53,6 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		{
 			if (inStream == null)
 				throw new ArgumentNullException(nameof(inStream));
-
 			if (outStream == null)
 				throw new ArgumentNullException(nameof(outStream));
 

@@ -1,5 +1,5 @@
 # About This Fork
-This Fork are using .NET 5.0 as base, and fix solution by CodeAnalysis or my self for personal project used.
+This Fork are using .NET 5.0 as base, and fix solution by CodeAnalysis or myself for personal project used.
 
 # SharpZipLib
 

@@ -531,7 +531,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			{
 				// This is done by Finsh() for Deflated entries, but we need to do it
 				// ourselves for Stored ones
-				base.GetAuthCodeIfAES();
+				GetAuthCodeIfAES();
 			}
 
 			// Write the AES Authentication Code (a hash of the compressed and encrypted data)
