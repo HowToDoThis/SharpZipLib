@@ -1,7 +1,7 @@
+using ICSharpCode.SharpZipLib.Core;
 using System;
 using System.IO;
 using System.Security.Cryptography;
-using ICSharpCode.SharpZipLib.Core;
 
 namespace ICSharpCode.SharpZipLib.Encryption
 {
@@ -57,7 +57,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		private int _transformBufferStartPos;
 
 		// Do we have some buffered data available?
-		private bool HasBufferedData =>_transformBuffer != null && _transformBufferStartPos < _transformBufferFreePos;
+		private bool HasBufferedData => _transformBuffer != null && _transformBufferStartPos < _transformBufferFreePos;
 
 		/// <summary>
 		/// Reads a sequence of bytes from the current CryptoStream into buffer,

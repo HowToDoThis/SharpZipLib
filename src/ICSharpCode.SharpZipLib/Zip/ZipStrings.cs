@@ -43,7 +43,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		{
 			get
 			{
-				return codePage == AutomaticCodePage? Encoding.UTF8.CodePage:codePage;
+				return codePage == AutomaticCodePage ? Encoding.UTF8.CodePage : codePage;
 			}
 			set
 			{
@@ -132,8 +132,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 					// then we must use SystemDefault (old behavior)
 					// otherwise, CodePage should be preferred over SystemDefault
 					// see https://github.com/icsharpcode/SharpZipLib/issues/274
-					codePage == AutomaticCodePage? 
-						SystemDefaultCodePage:
+					codePage == AutomaticCodePage ?
+						SystemDefaultCodePage :
 						codePage);
 
 		/// <summary>

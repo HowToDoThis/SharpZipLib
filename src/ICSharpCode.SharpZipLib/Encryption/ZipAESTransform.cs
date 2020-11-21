@@ -159,7 +159,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
 		{
-			if(inputCount > 0)
+			if (inputCount > 0)
 			{
 				throw new NotImplementedException("TransformFinalBlock is not implemented and inputCount is greater than 0");
 			}

@@ -260,7 +260,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		public string TransformDirectory(string name)
 		{
 			name = TransformFile(name);
-			
+
 			if (name.Length > 0)
 			{
 				if (!name.EndsWith("/", StringComparison.Ordinal))

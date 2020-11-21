@@ -911,9 +911,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		public bool TestArchive(bool testData, TestStrategy strategy, ZipTestResultHandler resultHandler)
 		{
 			if (isDisposed_)
-			{
 				throw new ObjectDisposedException("ZipFile");
-			}
 
 			var status = new TestStatus(this);
 
@@ -990,20 +988,25 @@ namespace ICSharpCode.SharpZipLib.Zip
 						{
 							var helper = new ZipHelperStream(baseStream_);
 							var data = new DescriptorData();
+
 							helper.ReadDataDescriptor(this[entryIndex].LocalHeaderRequiresZip64, data);
+
 							if (this[entryIndex].Crc != data.Crc)
 							{
 								status.AddError();
+								resultHandler?.Invoke(status, "Descriptor CRC mismatch");
 							}
 
 							if (this[entryIndex].CompressedSize != data.CompressedSize)
 							{
 								status.AddError();
+								resultHandler?.Invoke(status, "Descriptor Compressed Size mismatch");
 							}
 
 							if (this[entryIndex].Size != data.Size)
 							{
 								status.AddError();
+								resultHandler?.Invoke(status, "Descriptor Size mismatch");
 							}
 						}
 					}
@@ -2341,9 +2344,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 		private string GetTransformedFileName(string name)
 		{
 			INameTransform transform = NameTransform;
-			return (transform != null) ?
-				transform.TransformFile(name) :
-				name;
+
+			return (transform != null)
+				? transform.TransformFile(name)
+				: name;
 		}
 
 		/// <summary>
@@ -2353,45 +2357,51 @@ namespace ICSharpCode.SharpZipLib.Zip
 		private byte[] GetBuffer()
 		{
 			if (copyBuffer_ == null)
-			{
 				copyBuffer_ = new byte[bufferSize_];
-			}
+
 			return copyBuffer_;
 		}
 
 		private void CopyDescriptorBytes(ZipUpdate update, Stream dest, Stream source)
 		{
-			int bytesToCopy = GetDescriptorSize(update);
+			// Don't include the signature size to allow copy without seeking
+			int bytesToCopy = GetDescriptorSize(update, false);
 
-			if (bytesToCopy > 0)
+			// Don't touch the source stream if no descriptor is present
+			if (bytesToCopy == 0)
+				return;
+
+			byte[] buffer = GetBuffer();
+
+			// Copy the first 4 bytes of the descriptor
+			source.Read(buffer, 0, sizeof(int));
+			dest.Read(buffer, 0, sizeof(int));
+
+			if (BitConverter.ToUInt32(buffer, 0) != ZipConstants.DataDescriptorSignature)
 			{
-				byte[] buffer = GetBuffer();
+				// The initial bytes wasn't the descriptor, reduce the pending byte count
+				bytesToCopy -= buffer.Length;
+			}
 
-				while (bytesToCopy > 0)
+			while (bytesToCopy > 0)
+			{
+				int readSize = Math.Min(buffer.Length, bytesToCopy);
+				int bytesRead = source.Read(buffer, 0, readSize);
+
+				if (bytesRead > 0)
 				{
-					int readSize = Math.Min(buffer.Length, bytesToCopy);
-
-					int bytesRead = source.Read(buffer, 0, readSize);
-					if (bytesRead > 0)
-					{
-						dest.Write(buffer, 0, bytesRead);
-						bytesToCopy -= bytesRead;
-					}
-					else
-					{
-						throw new ZipException("Unxpected end of stream");
-					}
+					dest.Write(buffer, 0, bytesRead);
+					bytesToCopy -= bytesRead;
 				}
+				else
+					throw new ZipException("Unxpected end of stream");
 			}
 		}
 
-		private void CopyBytes(ZipUpdate update, Stream destination, Stream source,
-			long bytesToCopy, bool updateCrc)
+		private void CopyBytes(ZipUpdate update, Stream destination, Stream source, long bytesToCopy, bool updateCrc)
 		{
 			if (destination == source)
-			{
 				throw new InvalidOperationException("Destination and source are the same");
-			}
 
 			// NOTE: Compressed size is updated elsewhere.
 			var crc = new Crc32();
@@ -2406,65 +2416,60 @@ namespace ICSharpCode.SharpZipLib.Zip
 				int readSize = buffer.Length;
 
 				if (bytesToCopy < readSize)
-				{
 					readSize = (int)bytesToCopy;
-				}
 
 				bytesRead = source.Read(buffer, 0, readSize);
 				if (bytesRead > 0)
 				{
 					if (updateCrc)
-					{
 						crc.Update(new ArraySegment<byte>(buffer, 0, bytesRead));
-					}
+
 					destination.Write(buffer, 0, bytesRead);
 					bytesToCopy -= bytesRead;
 					totalBytesRead += bytesRead;
 				}
-			}
-			while ((bytesRead > 0) && (bytesToCopy > 0));
+			} while ((bytesRead > 0) && (bytesToCopy > 0));
 
 			if (totalBytesRead != targetBytes)
-			{
 				throw new ZipException(string.Format("Failed to copy bytes expected {0} read {1}", targetBytes, totalBytesRead));
-			}
 
 			if (updateCrc)
-			{
 				update.OutEntry.Crc = crc.Value;
-			}
 		}
 
 		/// <summary>
 		/// Get the size of the source descriptor for a <see cref="ZipUpdate"/>.
 		/// </summary>
 		/// <param name="update">The update to get the size for.</param>
+		/// <param name="includingSignature">Whether to include the signature size</param>
 		/// <returns>The descriptor size, zero if there isnt one.</returns>
-		private static int GetDescriptorSize(ZipUpdate update)
+		private static int GetDescriptorSize(ZipUpdate update, bool includingSignature)
 		{
-			int result = 0;
-			if ((update.Entry.Flags & (int)GeneralBitFlags.Descriptor) != 0)
-			{
-				result = ZipConstants.DataDescriptorSize - 4;
-				if (update.Entry.LocalHeaderRequiresZip64)
-				{
-					result = ZipConstants.Zip64DataDescriptorSize - 4;
-				}
-			}
-			return result;
+			if (!((GeneralBitFlags)update.Entry.Flags).HasFlag(GeneralBitFlags.Descriptor))
+				return 0;
+
+			var descriptorWithSignature = update.Entry.LocalHeaderRequiresZip64
+				? ZipConstants.Zip64DataDescriptorSize
+				: ZipConstants.DataDescriptorSize;
+
+			return includingSignature
+				? descriptorWithSignature
+				: descriptorWithSignature - sizeof(int);
 		}
 
 		private void CopyDescriptorBytesDirect(ZipUpdate update, Stream stream, ref long destinationPosition, long sourcePosition)
 		{
-			int bytesToCopy = GetDescriptorSize(update);
+			var buffer = GetBuffer();
+			stream.Position = sourcePosition;
+			stream.Read(buffer, 0, sizeof(int));
+
+			var sourceHasSignature = BitConverter.ToUInt32(buffer, 0) == ZipConstants.DataDescriptorSignature;
+			int bytesToCopy = GetDescriptorSize(update, sourceHasSignature);
 
 			while (bytesToCopy > 0)
 			{
-				var readSize = bytesToCopy;
-				byte[] buffer = GetBuffer();
-
 				stream.Position = sourcePosition;
-				int bytesRead = stream.Read(buffer, 0, readSize);
+				int bytesRead = stream.Read(buffer, 0, bytesToCopy);
 				if (bytesRead > 0)
 				{
 					stream.Position = destinationPosition;
@@ -2475,7 +2480,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				}
 				else
 				{
-					throw new ZipException("Unxpected end of stream");
+					throw new ZipException("Unexpected end of stream");
 				}
 			}
 		}
@@ -2495,20 +2500,17 @@ namespace ICSharpCode.SharpZipLib.Zip
 			do
 			{
 				int readSize = buffer.Length;
-
 				if (bytesToCopy < readSize)
-				{
 					readSize = (int)bytesToCopy;
-				}
 
 				stream.Position = sourcePosition;
 				bytesRead = stream.Read(buffer, 0, readSize);
+
 				if (bytesRead > 0)
 				{
 					if (updateCrc)
-					{
 						crc.Update(new ArraySegment<byte>(buffer, 0, bytesRead));
-					}
+
 					stream.Position = destinationPosition;
 					stream.Write(buffer, 0, bytesRead);
 
@@ -2517,27 +2519,21 @@ namespace ICSharpCode.SharpZipLib.Zip
 					bytesToCopy -= bytesRead;
 					totalBytesRead += bytesRead;
 				}
-			}
-			while ((bytesRead > 0) && (bytesToCopy > 0));
+			} while ((bytesRead > 0) && (bytesToCopy > 0));
 
 			if (totalBytesRead != targetBytes)
-			{
 				throw new ZipException(string.Format("Failed to copy bytes expected {0} read {1}", targetBytes, totalBytesRead));
-			}
 
 			if (updateCrc)
-			{
 				update.OutEntry.Crc = crc.Value;
-			}
 		}
 
 		private int FindExistingUpdate(ZipEntry entry)
 		{
 			int result = -1;
 			if (updateIndex_.ContainsKey(entry.Name))
-			{
 				result = updateIndex_[entry.Name];
-			}
+
 			/*
 						// This is slow like the coming of the next ice age but takes less storage and may be useful
 						// for CF?
@@ -2557,13 +2553,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 		private int FindExistingUpdate(string fileName, bool isEntryName = false)
 		{
 			int result = -1;
-
 			string convertedName = !isEntryName ? GetTransformedFileName(fileName) : fileName;
 
 			if (updateIndex_.ContainsKey(convertedName))
-			{
 				result = updateIndex_[convertedName];
-			}
 
 			/*
 						// This is slow like the coming of the next ice age but takes less storage and may be useful
@@ -2590,9 +2583,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 			Stream result = baseStream_;
 
 			if (entry.IsCrypted == true)
-			{
 				result = CreateAndInitEncryptionStream(result, entry);
-			}
 
 			switch (entry.CompressionMethod)
 			{
@@ -2638,11 +2629,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 			if (update.Entry.IsFile)
 			{
 				source = update.GetSource();
-
 				if (source == null)
-				{
 					source = updateDataSource_.GetSource(update.Entry, update.Filename);
-				}
 			}
 
 			if (source != null)
@@ -2651,16 +2639,12 @@ namespace ICSharpCode.SharpZipLib.Zip
 				{
 					long sourceStreamLength = source.Length;
 					if (update.OutEntry.Size < 0)
-					{
 						update.OutEntry.Size = sourceStreamLength;
-					}
 					else
 					{
 						// Check for errant entries.
 						if (update.OutEntry.Size != sourceStreamLength)
-						{
 							throw new ZipException("Entry size/stream size mismatch");
-						}
 					}
 
 					workFile.WriteLocalEntryHeader(update);
@@ -2736,19 +2720,24 @@ namespace ICSharpCode.SharpZipLib.Zip
 				if (update.OffsetBasedSize != -1)
 					destinationPosition += update.OffsetBasedSize;
 				else
-					// TODO: Find out why this calculation comes up 4 bytes short on some entries in ODT (Office Document Text) archives.
-					// WinZip produces a warning on these entries:
-					// "caution: value of lrec.csize (compressed size) changed from ..."
-					destinationPosition +=
-						(sourcePosition - entryDataOffset) + NameLengthOffset + // Header size
-						update.Entry.CompressedSize + GetDescriptorSize(update);
+				{
+					// Skip entry header
+					destinationPosition += (sourcePosition - entryDataOffset) + NameLengthOffset;
+					// Skip entry compressed data
+					destinationPosition += update.Entry.CompressedSize;
+					// Seek to end of entry to check for descriptor signature
+					baseStream_.Seek(destinationPosition, SeekOrigin.Begin);
+
+					var descriptorHasSignature = ReadLEUint() == ZipConstants.DataDescriptorSignature;
+					// Skip descriptor and it's signature (if present)
+					destinationPosition += GetDescriptorSize(update, descriptorHasSignature);
+				}
 			}
 			else
 			{
 				if (update.Entry.CompressedSize > 0)
-				{
 					CopyEntryDataDirect(update, baseStream_, false, ref destinationPosition, ref sourcePosition);
-				}
+
 				CopyDescriptorBytesDirect(update, baseStream_, ref destinationPosition, sourcePosition);
 			}
 		}
@@ -2773,6 +2762,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 				CopyBytes(update, workFile.baseStream_, baseStream_, update.Entry.CompressedSize, false);
 			}
+
 			CopyDescriptorBytes(update, workFile.baseStream_, baseStream_);
 		}
 
@@ -2824,32 +2814,23 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 			using (updateFile)
 			{
-				long locatedCentralDirOffset =
-					updateFile.LocateBlockWithSignature(ZipConstants.EndOfCentralDirectorySignature,
-														baseLength, ZipConstants.EndOfCentralRecordBaseSize, 0xffff);
+				long locatedCentralDirOffset = updateFile.LocateBlockWithSignature(ZipConstants.EndOfCentralDirectorySignature, baseLength, ZipConstants.EndOfCentralRecordBaseSize, 0xffff);
 				if (locatedCentralDirOffset < 0)
-				{
 					throw new ZipException("Cannot find central directory");
-				}
 
 				const int CentralHeaderCommentSizeOffset = 16;
 				updateFile.Position += CentralHeaderCommentSizeOffset;
 
 				byte[] rawComment = newComment_.RawComment;
-
 				updateFile.WriteLEShort(rawComment.Length);
 				updateFile.Write(rawComment, 0, rawComment.Length);
 				updateFile.SetLength(updateFile.Position);
 			}
 
 			if (archiveStorage_.UpdateMode == FileUpdateMode.Safe)
-			{
 				Reopen(archiveStorage_.ConvertTemporaryToFinal());
-			}
 			else
-			{
 				ReadEntries();
-			}
 		}
 
 		/// <summary>
@@ -2871,18 +2852,12 @@ namespace ICSharpCode.SharpZipLib.Zip
 				if (x == null)
 				{
 					if (y == null)
-					{
 						result = 0;
-					}
 					else
-					{
 						result = -1;
-					}
 				}
 				else if (y == null)
-				{
 					result = 1;
-				}
 				else
 				{
 					int xCmdValue = ((x.Command == UpdateCommand.Copy) || (x.Command == UpdateCommand.Modify)) ? 0 : 1;
@@ -2893,19 +2868,14 @@ namespace ICSharpCode.SharpZipLib.Zip
 					{
 						long offsetDiff = x.Entry.Offset - y.Entry.Offset;
 						if (offsetDiff < 0)
-						{
 							result = -1;
-						}
 						else if (offsetDiff == 0)
-						{
 							result = 0;
-						}
 						else
-						{
 							result = 1;
-						}
 					}
 				}
+
 				return result;
 			}
 		}
@@ -2940,9 +2910,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				workFile.UseZip64 = UseZip64;
 
 				if (key != null)
-				{
 					workFile.key = (byte[])key.Clone();
-				}
 			}
 
 			long endOfStream;
@@ -2956,13 +2924,9 @@ namespace ICSharpCode.SharpZipLib.Zip
 						{
 							case UpdateCommand.Copy:
 								if (directUpdate)
-								{
 									CopyEntryDirect(workFile, update, ref destinationPosition);
-								}
 								else
-								{
 									CopyEntry(workFile, update);
-								}
 								break;
 
 							case UpdateCommand.Modify:
@@ -2972,34 +2936,26 @@ namespace ICSharpCode.SharpZipLib.Zip
 
 							case UpdateCommand.Add:
 								if (!IsNewArchive && directUpdate)
-								{
 									workFile.baseStream_.Position = destinationPosition;
-								}
 
 								AddEntry(workFile, update);
 
 								if (directUpdate)
-								{
 									destinationPosition = workFile.baseStream_.Position;
-								}
 								break;
 						}
 					}
 				}
 
 				if (!IsNewArchive && directUpdate)
-				{
 					workFile.baseStream_.Position = destinationPosition;
-				}
 
 				long centralDirOffset = workFile.baseStream_.Position;
 
 				foreach (ZipUpdate update in updates_)
 				{
 					if (update != null)
-					{
 						sizeEntries += workFile.WriteCentralDirectoryHeader(update.OutEntry);
-					}
 				}
 
 				byte[] theComment = (newComment_ != null) ? newComment_.RawComment : ZipStrings.ConvertToArray(comment_);
@@ -3044,9 +3000,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 			{
 				workFile.Close();
 				if (!directUpdate && (workFile.Name != null))
-				{
 					File.Delete(workFile.Name);
-				}
+
 				throw;
 			}
 
@@ -3067,9 +3022,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		private void CheckUpdating()
 		{
 			if (updates_ == null)
-			{
 				throw new InvalidOperationException("BeginUpdate has not been called");
-			}
 		}
 
 		#endregion Update Support
@@ -4655,7 +4608,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 				if (stream != null)
 					stream.Dispose();
 
-				result = new FileStream(fileName_,						FileMode.Open,						FileAccess.ReadWrite);
+				result = new FileStream(fileName_, FileMode.Open, FileAccess.ReadWrite);
 			}
 			else
 				result = stream;

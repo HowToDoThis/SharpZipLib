@@ -728,11 +728,11 @@ namespace ICSharpCode.SharpZipLib.Zip
 					}
 
 					return ((year - 1980) & 0x7f) << 25 |
-					       (month << 21) |
-					       (day << 16) |
-					       (hour << 11) |
-					       (minute << 5) |
-					       (second >> 1);
+						   (month << 21) |
+						   (day << 16) |
+						   (hour << 11) |
+						   (minute << 5) |
+						   (second >> 1);
 				}
 			}
 
@@ -1242,7 +1242,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// <summary>
 		/// Creates a copy of this zip entry.
 		/// </summary>
-		/// <returns>An <see cref="Object"/> that is a copy of the current instance.</returns>
+		/// <returns>An <see cref="object"/> that is a copy of the current instance.</returns>
 		public object Clone()
 		{
 			var result = (ZipEntry)MemberwiseClone();

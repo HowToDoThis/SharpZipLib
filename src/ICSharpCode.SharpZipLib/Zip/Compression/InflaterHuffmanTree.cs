@@ -183,14 +183,15 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 			int lookahead, symbol;
 			if ((lookahead = input.PeekBits(9)) >= 0)
 			{
-                symbol = tree[lookahead];
+				symbol = tree[lookahead];
 				int bitlen = symbol & 15;
 
 				if (symbol >= 0)
 				{
-                    if(bitlen == 0){
-                        throw new SharpZipBaseException("Encountered invalid codelength 0");
-                    } 
+					if (bitlen == 0)
+					{
+						throw new SharpZipBaseException("Encountered invalid codelength 0");
+					}
 					input.DropBits(bitlen);
 					return symbol >> 4;
 				}

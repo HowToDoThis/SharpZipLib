@@ -62,7 +62,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 		/// Pending buffer to use
 		/// </param>
 		public DeflaterEngine(DeflaterPending pending)
-			: this (pending, false)
+			: this(pending, false)
 		{
 		}
 

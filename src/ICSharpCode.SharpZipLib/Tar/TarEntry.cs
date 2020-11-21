@@ -52,8 +52,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </param>
 		[Obsolete("No Encoding for Name field is specified, any non-ASCII bytes will be discarded")]
 		public TarEntry(byte[] headerBuffer) : this(headerBuffer, null)
-		{
-		}
+		{ }
 
 		/// <summary>
 		/// Construct an entry from an archive's header bytes. File is set
@@ -78,9 +77,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		public TarEntry(TarHeader header)
 		{
 			if (header == null)
-			{
 				throw new ArgumentNullException(nameof(header));
-			}
 
 			this.header = (TarHeader)header.Clone();
 		}
@@ -101,6 +98,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				header = (TarHeader)header.Clone(),
 				Name = Name
 			};
+
 			return entry;
 		}
 
@@ -116,6 +114,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		{
 			var entry = new TarEntry();
 			NameTarHeader(entry.header, name);
+
 			return entry;
 		}
 
@@ -129,6 +128,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		{
 			var entry = new TarEntry();
 			entry.GetFileTarHeader(entry.header, fileName);
+
 			return entry;
 		}
 
@@ -136,23 +136,22 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// Determine if the two entries are equal. Equality is determined
 		/// by the header names being equal.
 		/// </summary>
-		/// <param name="obj">The <see cref="Object"/> to compare with the current Object.</param>
+		/// <param name="obj">The <see cref="object"/> to compare with the current Object.</param>
 		/// <returns>
 		/// True if the entries are equal; false if not.
 		/// </returns>
 		public override bool Equals(object obj)
 		{
 			if (obj is TarEntry localEntry)
-			{
 				return Name.Equals(localEntry.Name);
-			}
+
 			return false;
 		}
 
 		/// <summary>
-		/// Derive a Hash value for the current <see cref="Object"/>
+		/// Derive a Hash value for the current <see cref="object"/>
 		/// </summary>
-		/// <returns>A Hash code for the current <see cref="Object"/></returns>
+		/// <returns>A Hash code for the current <see cref="object"/></returns>
 		public override int GetHashCode()
 		{
 			return Name.GetHashCode();
@@ -172,9 +171,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		public bool IsDescendent(TarEntry toTest)
 		{
 			if (toTest == null)
-			{
 				throw new ArgumentNullException(nameof(toTest));
-			}
 
 			return toTest.Name.StartsWith(Name, StringComparison.Ordinal);
 		}
@@ -187,10 +184,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </returns>
 		public TarHeader TarHeader
 		{
-			get
-			{
-				return header;
-			}
+			get { return header; }
 		}
 
 		/// <summary>
@@ -198,14 +192,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public string Name
 		{
-			get
-			{
-				return header.Name;
-			}
-			set
-			{
-				header.Name = value;
-			}
+			get { return header.Name; }
+			set { header.Name = value; }
 		}
 
 		/// <summary>
@@ -213,14 +201,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public int UserId
 		{
-			get
-			{
-				return header.UserId;
-			}
-			set
-			{
-				header.UserId = value;
-			}
+			get { return header.UserId; }
+			set { header.UserId = value; }
 		}
 
 		/// <summary>
@@ -228,14 +210,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public int GroupId
 		{
-			get
-			{
-				return header.GroupId;
-			}
-			set
-			{
-				header.GroupId = value;
-			}
+			get { return header.GroupId; }
+			set { header.GroupId = value; }
 		}
 
 		/// <summary>
@@ -243,14 +219,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public string UserName
 		{
-			get
-			{
-				return header.UserName;
-			}
-			set
-			{
-				header.UserName = value;
-			}
+			get { return header.UserName; }
+			set { header.UserName = value; }
 		}
 
 		/// <summary>
@@ -258,14 +228,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public string GroupName
 		{
-			get
-			{
-				return header.GroupName;
-			}
-			set
-			{
-				header.GroupName = value;
-			}
+			get { return header.GroupName; }
+			set { header.GroupName = value; }
 		}
 
 		/// <summary>
@@ -303,14 +267,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public DateTime ModTime
 		{
-			get
-			{
-				return header.ModTime;
-			}
-			set
-			{
-				header.ModTime = value;
-			}
+			get { return header.ModTime; }
+			set { header.ModTime = value; }
 		}
 
 		/// <summary>
@@ -321,10 +279,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </returns>
 		public string File
 		{
-			get
-			{
-				return file;
-			}
+			get { return file; }
 		}
 
 		/// <summary>
@@ -332,14 +287,8 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// </summary>
 		public long Size
 		{
-			get
-			{
-				return header.Size;
-			}
-			set
-			{
-				header.Size = value;
-			}
+			get { return header.Size; }
+			set { header.Size = value; }
 		}
 
 		/// <summary>
@@ -353,17 +302,14 @@ namespace ICSharpCode.SharpZipLib.Tar
 			get
 			{
 				if (file != null)
-				{
 					return Directory.Exists(file);
-				}
 
 				if (header != null)
 				{
 					if ((header.TypeFlag == TarHeader.LF_DIR) || Name.EndsWith("/", StringComparison.Ordinal))
-					{
 						return true;
-					}
 				}
+
 				return false;
 			}
 		}
@@ -380,9 +326,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		public void GetFileTarHeader(TarHeader header, string file)
 		{
 			if (header == null)
-			{
 				throw new ArgumentNullException(nameof(header));
-			}
 
 			this.file = file ?? throw new ArgumentNullException(nameof(file));
 
@@ -391,26 +335,24 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 			// 23-Jan-2004 GnuTar allows device names in path where the name is not local to the current directory
 			if (name.IndexOf(Directory.GetCurrentDirectory(), StringComparison.Ordinal) == 0)
-			{
 				name = name[Directory.GetCurrentDirectory().Length..];
-			}
 
 			/*
-						if (Path.DirectorySeparatorChar == '\\')
+				if (Path.DirectorySeparatorChar == '\\')
+				{
+					// check if the OS is Windows
+					// Strip off drive letters!
+					if (name.Length > 2)
+					{
+						char ch1 = name[0];
+						char ch2 = name[1];
+						
+						if (ch2 == ':' && Char.IsLetter(ch1))
 						{
-							// check if the OS is Windows
-							// Strip off drive letters!
-							if (name.Length > 2)
-							{
-								char ch1 = name[0];
-								char ch2 = name[1];
-
-								if (ch2 == ':' && Char.IsLetter(ch1))
-								{
-									name = name.Substring(2);
-								}
-							}
+							name = name.Substring(2);
 						}
+					}
+				}
 			*/
 
 			name = name.Replace(Path.DirectorySeparatorChar, '/');
@@ -423,7 +365,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				name = name[1..];
 			}
 
-			header.LinkName = String.Empty;
+			header.LinkName = string.Empty;
 			header.Name = name;
 
 			if (Directory.Exists(file))
@@ -431,9 +373,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 				header.Mode = 1003; // Magic number for security access for a UNIX filesystem
 				header.TypeFlag = TarHeader.LF_DIR;
 				if ((header.Name.Length == 0) || header.Name[^1] != '/')
-				{
 					header.Name += "/";
-				}
 
 				header.Size = 0;
 			}
@@ -459,9 +399,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		public TarEntry[] GetDirectoryEntries()
 		{
 			if ((file == null) || !Directory.Exists(file))
-			{
 				return Array.Empty<TarEntry>();
-			}
 
 			string[] list = Directory.GetFileSystemEntries(file);
 			TarEntry[] result = new TarEntry[list.Length];
@@ -511,7 +449,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// The new name to place into the header buffer.
 		/// </param>
 		[Obsolete("No Encoding for Name field is specified, any non-ASCII bytes will be discarded")]
-		static public void AdjustEntryName(byte[] buffer, string newName)
+		public static void AdjustEntryName(byte[] buffer, string newName)
 		{
 			AdjustEntryName(buffer, newName, null);
 		}
@@ -529,7 +467,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name="nameEncoding">
 		/// The <see cref="Encoding"/> used for the Name fields, or null for ASCII only
 		/// </param>
-		static public void AdjustEntryName(byte[] buffer, string newName, Encoding nameEncoding)
+		public static void AdjustEntryName(byte[] buffer, string newName, Encoding nameEncoding)
 		{
 			TarHeader.GetNameBytes(newName, buffer, 0, TarHeader.NAMELEN, nameEncoding);
 		}
@@ -543,17 +481,12 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name="name">
 		/// The tar entry name.
 		/// </param>
-		static public void NameTarHeader(TarHeader header, string name)
+		public static void NameTarHeader(TarHeader header, string name)
 		{
 			if (header == null)
-			{
 				throw new ArgumentNullException(nameof(header));
-			}
-
 			if (name == null)
-			{
 				throw new ArgumentNullException(nameof(name));
-			}
 
 			bool isDir = name.EndsWith("/", StringComparison.Ordinal);
 
@@ -567,9 +500,9 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 			header.TypeFlag = isDir ? TarHeader.LF_DIR : TarHeader.LF_NORMAL;
 
-			header.LinkName = String.Empty;
-			header.UserName = String.Empty;
-			header.GroupName = String.Empty;
+			header.LinkName = string.Empty;
+			header.UserName = string.Empty;
+			header.GroupName = string.Empty;
 
 			header.DevMajor = 0;
 			header.DevMinor = 0;

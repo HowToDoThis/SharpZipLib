@@ -1,8 +1,7 @@
+using ICSharpCode.SharpZipLib.Core;
 using System;
 using System.IO;
-using System.Numerics;
 using System.Text;
-using ICSharpCode.SharpZipLib.Core;
 
 namespace ICSharpCode.SharpZipLib.Tar
 {
@@ -580,7 +579,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name="destinationDirectory">
 		/// The destination directory into which to extract.
 		/// </param>
-		public void ExtractContents(string destinationDirectory) 
+		public void ExtractContents(string destinationDirectory)
 			=> ExtractContents(destinationDirectory, false);
 
 		/// <summary>
@@ -831,7 +830,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 			string newName = null;
 
-			if (!String.IsNullOrEmpty(rootPath))
+			if (!string.IsNullOrEmpty(rootPath))
 			{
 				if (entry.Name.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
 				{

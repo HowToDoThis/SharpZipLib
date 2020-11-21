@@ -498,7 +498,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <summary>
 		/// Create a new <see cref="TarHeader"/> that is a copy of the current instance.
 		/// </summary>
-		/// <returns>A new <see cref="Object"/> that is a copy of the current instance.</returns>
+		/// <returns>A new <see cref="object"/> that is a copy of the current instance.</returns>
 		public object Clone()
 		{
 			return MemberwiseClone();
@@ -701,7 +701,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name="userName">Value to apply as a default for userName.</param>
 		/// <param name="groupId">Value to apply as a default for groupId.</param>
 		/// <param name="groupName">Value to apply as a default for groupName.</param>
-		static internal void SetValueDefaults(int userId, string userName, int groupId, string groupName)
+		internal static void SetValueDefaults(int userId, string userName, int groupId, string groupName)
 		{
 			defaultUserId = userIdAsSet = userId;
 			defaultUser = userNameAsSet = userName;
@@ -709,7 +709,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			defaultGroupName = groupNameAsSet = groupName;
 		}
 
-		static internal void RestoreSetValues()
+		internal static void RestoreSetValues()
 		{
 			defaultUserId = userIdAsSet;
 			defaultUser = userNameAsSet;
@@ -719,7 +719,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 
 		// Return value that may be stored in octal or binary. Length must exceed 8.
 		//
-		static private long ParseBinaryOrOctal(byte[] header, int offset, int length)
+		private static long ParseBinaryOrOctal(byte[] header, int offset, int length)
 		{
 			if (header[offset] >= 0x80)
 			{
@@ -741,7 +741,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <param name = "offset">The offset into the buffer from which to parse.</param>
 		/// <param name = "length">The number of header bytes to parse.</param>
 		/// <returns>The long equivalent of the octal string.</returns>
-		static public long ParseOctal(byte[] header, int offset, int length)
+		public static long ParseOctal(byte[] header, int offset, int length)
 		{
 			if (header == null)
 			{
@@ -796,7 +796,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// The name parsed.
 		/// </returns>
 		[Obsolete("No Encoding for Name field is specified, any non-ASCII bytes will be discarded")]
-		static public StringBuilder ParseName(byte[] header, int offset, int length)
+		public static StringBuilder ParseName(byte[] header, int offset, int length)
 		{
 			return ParseName(header, offset, length, null);
 		}
@@ -819,7 +819,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 		/// <returns>
 		/// The name parsed.
 		/// </returns>
-		static public StringBuilder ParseName(byte[] header, int offset, int length, Encoding encoding)
+		public static StringBuilder ParseName(byte[] header, int offset, int length, Encoding encoding)
 		{
 			if (header == null)
 			{
@@ -844,7 +844,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			var result = new StringBuilder(length);
 
 			int count = 0;
-			if(encoding == null)
+			if (encoding == null)
 			{
 				for (int i = offset; i < offset + length; ++i)
 				{
@@ -857,9 +857,9 @@ namespace ICSharpCode.SharpZipLib.Tar
 			}
 			else
 			{
-				for(int i = offset; i < offset + length; ++i, ++count)
+				for (int i = offset; i < offset + length; ++i, ++count)
 				{
-					if(header[i] == 0)
+					if (header[i] == 0)
 					{
 						break;
 					}
@@ -921,7 +921,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			}
 
 			int i;
-			if(encoding != null)
+			if (encoding != null)
 			{
 				// it can be more sufficient if using Span or unsafe
 				var nameArray = name.ToCharArray(nameOffset, Math.Min(name.Length - nameOffset, length));
@@ -1080,7 +1080,7 @@ namespace ICSharpCode.SharpZipLib.Tar
 			}
 
 			int i;
-			if(encoding == null)
+			if (encoding == null)
 			{
 				for (i = 0; i < length && nameOffset + i < toAdd.Length; ++i)
 				{
@@ -1276,16 +1276,16 @@ namespace ICSharpCode.SharpZipLib.Tar
 		#region Class Fields
 
 		// Values used during recursive operations.
-		static internal int userIdAsSet;
+		internal static int userIdAsSet;
 
-		static internal int groupIdAsSet;
-		static internal string userNameAsSet;
-		static internal string groupNameAsSet = "None";
+		internal static int groupIdAsSet;
+		internal static string userNameAsSet;
+		internal static string groupNameAsSet = "None";
 
-		static internal int defaultUserId;
-		static internal int defaultGroupId;
-		static internal string defaultGroupName = "None";
-		static internal string defaultUser;
+		internal static int defaultUserId;
+		internal static int defaultGroupId;
+		internal static string defaultGroupName = "None";
+		internal static string defaultUser;
 
 		#endregion Class Fields
 	}
