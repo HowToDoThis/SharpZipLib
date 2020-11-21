@@ -3682,8 +3682,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 		private static void WriteEncryptionHeader(Stream stream, long crcValue)
 		{
 			byte[] cryptBuffer = new byte[ZipConstants.CryptoHeaderSize];
-			var rnd = new Random();
-			rnd.NextBytes(cryptBuffer);
+			using var rnd = new RNGCryptoServiceProvider();
+			rnd.GetBytes(cryptBuffer);
 			cryptBuffer[11] = (byte)(crcValue >> 24);
 			stream.Write(cryptBuffer, 0, cryptBuffer.Length);
 		}

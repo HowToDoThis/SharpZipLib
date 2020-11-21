@@ -16,23 +16,18 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		/// <param name="seed">The seed value to initialise keys with.</param>
 		/// <returns>A new key value.</returns>
-		static public byte[] GenerateKeys(byte[] seed)
+		public static byte[] GenerateKeys(byte[] seed)
 		{
 			if (seed == null)
-			{
 				throw new ArgumentNullException(nameof(seed));
-			}
-
 			if (seed.Length == 0)
-			{
 				throw new ArgumentException("Length is zero", nameof(seed));
-			}
 
 			uint[] newKeys = {
 				0x12345678,
 				0x23456789,
 				0x34567890
-			 };
+			};
 
 			for (int i = 0; i < seed.Length; ++i)
 			{
@@ -55,6 +50,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 			result[9] = (byte)((newKeys[2] >> 8) & 0xff);
 			result[10] = (byte)((newKeys[2] >> 16) & 0xff);
 			result[11] = (byte)((newKeys[2] >> 24) & 0xff);
+
 			return result;
 		}
 	}
@@ -84,14 +80,9 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		protected void SetKeys(byte[] keyData)
 		{
 			if (keyData == null)
-			{
 				throw new ArgumentNullException(nameof(keyData));
-			}
-
 			if (keyData.Length != 12)
-			{
 				throw new InvalidOperationException("Key length is not valid");
-			}
 
 			keys = new uint[3];
 			keys[0] = (uint)((keyData[3] << 24) | (keyData[2] << 16) | (keyData[1] << 8) | keyData[0]);
@@ -154,6 +145,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		{
 			byte[] result = new byte[inputCount];
 			TransformBlock(inputBuffer, inputOffset, inputCount, result, 0);
+
 			return result;
 		}
 
@@ -175,6 +167,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 				outputBuffer[outputOffset++] = (byte)(inputBuffer[i] ^ TransformByte());
 				UpdateKeys(oldbyte);
 			}
+
 			return inputCount;
 		}
 
@@ -183,10 +176,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public bool CanReuseTransform
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		/// <summary>
@@ -194,10 +184,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public int InputBlockSize
 		{
-			get
-			{
-				return 1;
-			}
+			get { return 1; }
 		}
 
 		/// <summary>
@@ -205,10 +192,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public int OutputBlockSize
 		{
-			get
-			{
-				return 1;
-			}
+			get { return 1; }
 		}
 
 		/// <summary>
@@ -216,10 +200,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public bool CanTransformMultipleBlocks
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		#endregion ICryptoTransform Members
@@ -264,6 +245,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		{
 			byte[] result = new byte[inputCount];
 			TransformBlock(inputBuffer, inputOffset, inputCount, result, 0);
+
 			return result;
 		}
 
@@ -285,6 +267,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 				outputBuffer[outputOffset++] = newByte;
 				UpdateKeys(newByte);
 			}
+
 			return inputCount;
 		}
 
@@ -293,10 +276,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public bool CanReuseTransform
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		/// <summary>
@@ -304,10 +284,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public int InputBlockSize
 		{
-			get
-			{
-				return 1;
-			}
+			get { return 1; }
 		}
 
 		/// <summary>
@@ -315,10 +292,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public int OutputBlockSize
 		{
-			get
-			{
-				return 1;
-			}
+			get { return 1; }
 		}
 
 		/// <summary>
@@ -326,10 +300,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// </summary>
 		public bool CanTransformMultipleBlocks
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		#endregion ICryptoTransform Members
@@ -359,17 +330,11 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// <remarks>The only valid block size is 8.</remarks>
 		public override int BlockSize
 		{
-			get
-			{
-				return 8;
-			}
-
+			get { return 8; }
 			set
 			{
 				if (value != 8)
-				{
 					throw new CryptographicException("Block size is invalid");
-				}
 			}
 		}
 
@@ -415,24 +380,16 @@ namespace ICSharpCode.SharpZipLib.Encryption
 			get
 			{
 				if (key_ == null)
-				{
 					GenerateKey();
-				}
 
 				return (byte[])key_.Clone();
 			}
-
 			set
 			{
 				if (value == null)
-				{
 					throw new ArgumentNullException(nameof(value));
-				}
-
 				if (value.Length != 12)
-				{
 					throw new CryptographicException("Key size is illegal");
-				}
 
 				key_ = (byte[])value.Clone();
 			}
@@ -444,8 +401,8 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		public override void GenerateKey()
 		{
 			key_ = new byte[12];
-			var rnd = new Random();
-			rnd.NextBytes(key_);
+			using var rnd = new RNGCryptoServiceProvider();
+			rnd.GetBytes(key_);
 		}
 
 		/// <summary>
@@ -454,9 +411,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// <param name="rgbKey">The key to use for this encryptor.</param>
 		/// <param name="rgbIV">Initialisation vector for the new encryptor.</param>
 		/// <returns>Returns a new PkzipClassic encryptor</returns>
-		public override ICryptoTransform CreateEncryptor(
-			byte[] rgbKey,
-			byte[] rgbIV)
+		public override ICryptoTransform CreateEncryptor(byte[] rgbKey, byte[] rgbIV)
 		{
 			key_ = rgbKey;
 			return new PkzipClassicEncryptCryptoTransform(Key);
@@ -468,9 +423,7 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		/// <param name="rgbKey">Keys to use for this new decryptor.</param>
 		/// <param name="rgbIV">Initialisation vector for the new decryptor.</param>
 		/// <returns>Returns a new decryptor.</returns>
-		public override ICryptoTransform CreateDecryptor(
-			byte[] rgbKey,
-			byte[] rgbIV)
+		public override ICryptoTransform CreateDecryptor(byte[] rgbKey, byte[] rgbIV)
 		{
 			key_ = rgbKey;
 			return new PkzipClassicDecryptCryptoTransform(Key);

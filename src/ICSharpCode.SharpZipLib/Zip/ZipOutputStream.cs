@@ -5,6 +5,7 @@ using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace ICSharpCode.SharpZipLib.Zip
 {
@@ -84,10 +85,7 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// <remarks>No further entries can be added once this has been done.</remarks>
 		public bool IsFinished
 		{
-			get
-			{
-				return entries == null;
-			}
+			get { return entries == null; }
 		}
 
 		/// <summary>
@@ -104,9 +102,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 			// TODO: Its not yet clear how to handle unicode comments here.
 			byte[] commentBytes = ZipStrings.ConvertToArray(comment);
 			if (commentBytes.Length > 0xffff)
-			{
 				throw new ArgumentOutOfRangeException(nameof(comment));
-			}
+
 			zipComment = commentBytes;
 		}
 
@@ -633,8 +630,8 @@ namespace ICSharpCode.SharpZipLib.Zip
 			InitializePassword(Password);
 
 			byte[] cryptBuffer = new byte[ZipConstants.CryptoHeaderSize];
-			var rnd = new Random();
-			rnd.NextBytes(cryptBuffer);
+			using var rnd = new RNGCryptoServiceProvider();
+			rnd.GetBytes(cryptBuffer);
 			cryptBuffer[11] = (byte)(crcValue >> 24);
 
 			EncryptBlock(cryptBuffer, 0, cryptBuffer.Length);
@@ -925,10 +922,10 @@ namespace ICSharpCode.SharpZipLib.Zip
 		/// </summary>
 		public override void Flush()
 		{
-			if(curMethod == CompressionMethod.Stored)
+			if (curMethod == CompressionMethod.Stored)
 			{
 				baseOutputStream_.Flush();
-			} 
+			}
 			else
 			{
 				base.Flush();
