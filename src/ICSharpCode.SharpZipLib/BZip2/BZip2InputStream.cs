@@ -24,20 +24,20 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		#region Instance Fields
 
 		/*--
-        index of the last char in the block, so
-        the block size == last + 1.
-        --*/
+		index of the last char in the block, so
+		the block size == last + 1.
+		--*/
 		private int last;
 
 		/*--
-        index in zptr[] of original string after sorting.
-        --*/
+		index in zptr[] of original string after sorting.
+		--*/
 		private int origPtr;
 
 		/*--
-        always: in the range 0 .. 9.
-        The current block size is 100000 * this number.
-        --*/
+		always: in the range 0 .. 9.
+		The current block size is 100000 * this number.
+		--*/
 		private int blockSize100k;
 
 		private bool blockRandomised;
@@ -59,9 +59,9 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		private byte[] ll8;
 
 		/*--
-        freq table collected to save a pass over the data
-        during decompression.
-        --*/
+		freq table collected to save a pass over the data
+		during decompression.
+		--*/
 		private readonly int[] unzftab = new int[256];
 
 		private readonly int[][] limit = new int[BZip2Constants.GroupCount][];
@@ -557,11 +557,11 @@ namespace ICSharpCode.SharpZipLib.BZip2
 			int groupPos = 0;
 
 			/*--
-            Setting up the unzftab entries here is not strictly
-            necessary, but it does save having to do it later
-            in a separate pass, and so saves a block's worth of
-            cache misses.
-            --*/
+			Setting up the unzftab entries here is not strictly
+			necessary, but it does save having to do it later
+			in a separate pass, and so saves a block's worth of
+			cache misses.
+			--*/
 			for (int i = 0; i <= 255; i++)
 			{
 				unzftab[i] = 0;

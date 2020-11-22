@@ -20,21 +20,21 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		private const int DEPTH_THRESH = 10;
 
 		/*--
-        If you are ever unlucky/improbable enough
-        to get a stack overflow whilst sorting,
-        increase the following constant and try
-        again.  In practice I have never seen the
-        stack go above 27 elems, so the following
-        limit seems very generous.
-        --*/
+		If you are ever unlucky/improbable enough
+		to get a stack overflow whilst sorting,
+		increase the following constant and try
+		again.  In practice I have never seen the
+		stack go above 27 elems, so the following
+		limit seems very generous.
+		--*/
 		private const int QSORT_STACK_SIZE = 1000;
 
 		/*--
-        Knuth's increments seem to work better
-        than Incerpi-Sedgewick here.  Possibly
-        because the number of elems to sort is
-        usually small, typically <= 20.
-        --*/
+		Knuth's increments seem to work better
+		than Incerpi-Sedgewick here.  Possibly
+		because the number of elems to sort is
+		usually small, typically <= 20.
+		--*/
 
 		private readonly int[] increments = {
 												  1, 4, 13, 40, 121, 364, 1093, 3280,
@@ -47,20 +47,20 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		#region Instance Fields
 
 		/*--
-        index of the last char in the block, so
-        the block size == last + 1.
-        --*/
+		index of the last char in the block, so
+		the block size == last + 1.
+		--*/
 		private int last;
 
 		/*--
-        index in zptr[] of original string after sorting.
-        --*/
+		index in zptr[] of original string after sorting.
+		--*/
 		private int origPtr;
 
 		/*--
-        always: in the range 0 .. 9.
-        The current block size is 100000 * this number.
-        --*/
+		always: in the range 0 .. 9.
+		The current block size is 100000 * this number.
+		--*/
 		private readonly int blockSize100k;
 
 		private bool blockRandomised;
@@ -90,10 +90,10 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		private readonly int[] mtfFreq = new int[BZip2Constants.MaximumAlphaSize];
 
 		/*
-        * Used when sorting.  If too many long comparisons
-        * happen, we stop sorting, randomise the block
-        * slightly, and try again.
-        */
+		* Used when sorting.  If too many long comparisons
+		* happen, we stop sorting, randomise the block
+		* slightly, and try again.
+		*/
 		private readonly int workFactor;
 		private int workDone;
 		private int workLimit;
@@ -451,8 +451,8 @@ namespace ICSharpCode.SharpZipLib.BZip2
 			//nBlocksRandomised = 0;
 
 			/*--- Write header `magic' bytes indicating file-format == huffmanised,
-            followed by a digit indicating blockSize100k.
-            ---*/
+			followed by a digit indicating blockSize100k.
+			---*/
 
 			BsPutUChar('B');
 			BsPutUChar('Z');
@@ -492,18 +492,18 @@ namespace ICSharpCode.SharpZipLib.BZip2
 			DoReversibleTransformation();
 
 			/*--
-            A 6-byte block header, the value chosen arbitrarily
-            as 0x314159265359 :-).  A 32 bit value does not really
-            give a strong enough guarantee that the value will not
-            appear by chance in the compressed datastream.  Worst-case
-            probability of this event, for a 900k block, is about
-            2.0e-3 for 32 bits, 1.0e-5 for 40 bits and 4.0e-8 for 48 bits.
-            For a compressed file of size 100Gb -- about 100000 blocks --
-            only a 48-bit marker will do.  NB: normal compression/
-            decompression do *not* rely on these statistical properties.
-            They are only important when trying to recover blocks from
-            damaged files.
-            --*/
+			A 6-byte block header, the value chosen arbitrarily
+			as 0x314159265359 :-).  A 32 bit value does not really
+			give a strong enough guarantee that the value will not
+			appear by chance in the compressed datastream.  Worst-case
+			probability of this event, for a 900k block, is about
+			2.0e-3 for 32 bits, 1.0e-5 for 40 bits and 4.0e-8 for 48 bits.
+			For a compressed file of size 100Gb -- about 100000 blocks --
+			only a 48-bit marker will do.  NB: normal compression/
+			decompression do *not* rely on these statistical properties.
+			They are only important when trying to recover blocks from
+			damaged files.
+			--*/
 			BsPutUChar(0x31);
 			BsPutUChar(0x41);
 			BsPutUChar(0x59);
@@ -535,12 +535,12 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		private void EndCompression()
 		{
 			/*--
-            Now another magic 48-bit number, 0x177245385090, to
-            indicate the end of the last block.  (sqrt(pi), if
-            you want to know.  I did want to use e, but it contains
-            too much repetition -- 27 18 28 18 28 46 -- for me
-            to feel statistically comfortable.  Call me paranoid.)
-            --*/
+			Now another magic 48-bit number, 0x177245385090, to
+			indicate the end of the last block.  (sqrt(pi), if
+			you want to know.  I did want to use e, but it contains
+			too much repetition -- 27 18 28 18 28 46 -- for me
+			to feel statistically comfortable.  Call me paranoid.)
+			--*/
 			BsPutUChar(0x17);
 			BsPutUChar(0x72);
 			BsPutUChar(0x45);
@@ -695,8 +695,8 @@ namespace ICSharpCode.SharpZipLib.BZip2
 			int[] fave = new int[BZip2Constants.GroupCount];
 			short[] cost = new short[BZip2Constants.GroupCount];
 			/*---
-            Iterate up to N_ITERS times to improve the tables.
-            ---*/
+			Iterate up to N_ITERS times to improve the tables.
+			---*/
 			for (iter = 0; iter < BZip2Constants.NumberOfIterations; ++iter)
 			{
 				for (int t = 0; t < nGroups; ++t)
@@ -729,9 +729,9 @@ namespace ICSharpCode.SharpZipLib.BZip2
 					}
 
 					/*--
-                    Calculate the cost of this group as coded
-                    by each of the coding tables.
-                    --*/
+					Calculate the cost of this group as coded
+					by each of the coding tables.
+					--*/
 					for (int t = 0; t < nGroups; t++)
 					{
 						cost[t] = 0;
@@ -771,9 +771,9 @@ namespace ICSharpCode.SharpZipLib.BZip2
 					}
 
 					/*--
-                    Find the coding table which is best for this group,
-                    and record its identity in the selector table.
-                    --*/
+					Find the coding table which is best for this group,
+					and record its identity in the selector table.
+					--*/
 					bc = 999999999;
 					bt = -1;
 					for (int t = 0; t < nGroups; ++t)
@@ -790,8 +790,8 @@ namespace ICSharpCode.SharpZipLib.BZip2
 					nSelectors++;
 
 					/*--
-                    Increment the symbol frequencies for the selected table.
-                    --*/
+					Increment the symbol frequencies for the selected table.
+					--*/
 					for (int i = gs; i <= ge; ++i)
 					{
 						++rfreq[bt][szptr[i]];
@@ -801,8 +801,8 @@ namespace ICSharpCode.SharpZipLib.BZip2
 				}
 
 				/*--
-                Recompute the tables based on the accumulated frequencies.
-                --*/
+				Recompute the tables based on the accumulated frequencies.
+				--*/
 				for (int t = 0; t < nGroups; ++t)
 				{
 					HbMakeCodeLengths(len[t], rfreq[t], alphaSize, 20);
@@ -1239,10 +1239,10 @@ namespace ICSharpCode.SharpZipLib.BZip2
 			int numQSorted;
 
 			/*--
-            In the various block-sized structures, live data runs
-            from 0 to last+NUM_OVERSHOOT_BYTES inclusive.  First,
-            set up the overshoot area for block.
-            --*/
+			In the various block-sized structures, live data runs
+			from 0 to last+NUM_OVERSHOOT_BYTES inclusive.  First,
+			set up the overshoot area for block.
+			--*/
 
 			//   if (verbosity >= 4) fprintf ( stderr, "        sort initialise ...\n" );
 			for (i = 0; i < BZip2Constants.OvershootBytes; i++)
@@ -1259,9 +1259,9 @@ namespace ICSharpCode.SharpZipLib.BZip2
 			if (last < 4000)
 			{
 				/*--
-                Use simpleSort(), since the full sorting mechanism
-                has quite a large constant overhead.
-                --*/
+				Use simpleSort(), since the full sorting mechanism
+				has quite a large constant overhead.
+				--*/
 				for (i = 0; i <= last; i++)
 				{
 					zptr[i] = i;
@@ -1310,10 +1310,10 @@ namespace ICSharpCode.SharpZipLib.BZip2
 				zptr[ftab[j]] = last;
 
 				/*--
-                Now ftab contains the first loc of every small bucket.
-                Calculate the running order, from smallest to largest
-                big bucket.
-                --*/
+				Now ftab contains the first loc of every small bucket.
+				Calculate the running order, from smallest to largest
+				big bucket.
+				--*/
 
 				for (i = 0; i <= 255; i++)
 				{
@@ -1347,22 +1347,22 @@ namespace ICSharpCode.SharpZipLib.BZip2
 				} while (h != 1);
 
 				/*--
-                The main sorting loop.
-                --*/
+				The main sorting loop.
+				--*/
 				for (i = 0; i <= 255; i++)
 				{
 					/*--
-                    Process big buckets, starting with the least full.
-                    --*/
+					Process big buckets, starting with the least full.
+					--*/
 					ss = runningOrder[i];
 
 					/*--
-                    Complete the big bucket [ss] by quicksorting
-                    any unsorted small buckets [ss, j].  Hopefully
-                    previous pointer-scanning phases have already
-                    completed many of the small buckets [ss, j], so
-                    we don't have to sort them at all.
-                    --*/
+					Complete the big bucket [ss] by quicksorting
+					any unsorted small buckets [ss, j].  Hopefully
+					previous pointer-scanning phases have already
+					completed many of the small buckets [ss, j], so
+					we don't have to sort them at all.
+					--*/
 					for (j = 0; j <= 255; j++)
 					{
 						sb = (ss << 8) + j;
@@ -1384,13 +1384,13 @@ namespace ICSharpCode.SharpZipLib.BZip2
 					}
 
 					/*--
-                    The ss big bucket is now done.  Record this fact,
-                    and update the quadrant descriptors.  Remember to
-                    update quadrants in the overshoot area too, if
-                    necessary.  The "if (i < 255)" test merely skips
-                    this updating for the last bucket processed, since
-                    updating for the last bucket is pointless.
-                    --*/
+					The ss big bucket is now done.  Record this fact,
+					and update the quadrant descriptors.  Remember to
+					update quadrants in the overshoot area too, if
+					necessary.  The "if (i < 255)" test merely skips
+					this updating for the last bucket processed, since
+					updating for the last bucket is pointless.
+					--*/
 					bigDone[ss] = true;
 
 					if (i < 255)
@@ -1422,9 +1422,9 @@ namespace ICSharpCode.SharpZipLib.BZip2
 					}
 
 					/*--
-                    Now scan this big bucket so as to synthesise the
-                    sorted order for small buckets [t, ss] for all t != ss.
-                    --*/
+					Now scan this big bucket so as to synthesise the
+					sorted order for small buckets [t, ss] for all t != ss.
+					--*/
 					for (j = 0; j <= 255; j++)
 					{
 						copy[j] = ftab[(j << 8) + ss] & CLEARMASK;
@@ -1669,15 +1669,15 @@ namespace ICSharpCode.SharpZipLib.BZip2
 			}
 
 			/*
-            The back end needs a place to store the MTF values
-            whilst it calculates the coding tables.  We could
-            put them in the zptr array.  However, these values
-            will fit in a short, so we overlay szptr at the
-            start of zptr, in the hope of reducing the number
-            of cache misses induced by the multiple traversals
-            of the MTF values when calculating coding tables.
-            Seems to improve compression speed by about 1%.
-            */
+			The back end needs a place to store the MTF values
+			whilst it calculates the coding tables.  We could
+			put them in the zptr array.  However, these values
+			will fit in a short, so we overlay szptr at the
+			start of zptr, in the hope of reducing the number
+			of cache misses induced by the multiple traversals
+			of the MTF values when calculating coding tables.
+			Seems to improve compression speed by about 1%.
+			*/
 			//	szptr = zptr;
 
 			szptr = new short[2 * n];
@@ -1806,9 +1806,9 @@ namespace ICSharpCode.SharpZipLib.BZip2
 		private static void HbMakeCodeLengths(char[] len, int[] freq, int alphaSize, int maxLen)
 		{
 			/*--
-            Nodes and heap entries run from 1.  Entry 0
-            for both the heap and nodes is a sentinel.
-            --*/
+			Nodes and heap entries run from 1.  Entry 0
+			for both the heap and nodes is a sentinel.
+			--*/
 			int nNodes, nHeap, n1, n2, j, k;
 			bool tooLong;
 
